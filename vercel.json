@@ -1,0 +1,53 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "cd ../.. && npm run build",
+  "outputDirectory": "../../apps/web/.next",
+  "installCommand": "cd ../.. && npm install",
+  "ignoreCommand": "git diff --quiet HEAD^ HEAD .",
+  "functions": {
+    "apps/web/app/api/**/*": {
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Credentials",
+          "value": "true"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET,OPTIONS,PATCH,DELETE,POST,PUT"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version"
+        }
+      ]
+    }
+  ],
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": "@supabase-url",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "@supabase-anon-key",
+    "FACEBOOK_APP_ID": "@facebook-app-id",
+    "FACEBOOK_APP_SECRET": "@facebook-app-secret",
+    "ENCRYPTION_KEY": "@encryption-key"
+  },
+  "build": {
+    "env": {
+      "NEXT_PUBLIC_APP_URL": "VERCEL_URL"
+    }
+  }
+}
