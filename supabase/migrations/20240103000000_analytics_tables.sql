@@ -212,7 +212,8 @@ CREATE POLICY "message_analytics_team_read" ON public.message_analytics
   FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.conversations c
-    JOIN public.team_members tm ON tm.team_id = c.team_id
+    JOIN public.ig_accounts ig ON ig.id = c.ig_account_id
+    JOIN public.team_members tm ON tm.team_id = ig.team_id
     WHERE c.id = message_analytics.conversation_id
     AND tm.user_id = auth.uid()
   ));

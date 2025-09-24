@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createServerComponentClient } from '../../../lib/supabase/server';
+import { getUserTeam } from '../../../lib/utils/team';
 import { Button } from '@socialinbox/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
 import { Badge } from '@socialinbox/ui';
@@ -58,20 +59,21 @@ const triggerTypeLabels = {
 };
 
 export default async function TriggersPage() {
-  const supabase = await createServerComponentClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Get user's team
-  const { data: teamMember } = await supabase
-    .from('team_members')
-    .select('team_id')
-    .eq('user_id', user!.id)
-    .single();
+  const { error, teamId } = await getUserTeam();
 
+  if (error || !teamId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-gray-500">Team configuration not found. Please contact support.</p>
+      </div>
+    );
+  }
+
+  const supabase = await createServerComponentClient();
   const [triggers, connectedAccounts, flows] = await Promise.all([
-    getTriggers(supabase, teamMember.team_id),
-    getConnectedAccounts(supabase, teamMember.team_id),
-    getFlows(supabase, teamMember.team_id),
+    getTriggers(supabase, teamId),
+    getConnectedAccounts(supabase, teamId),
+    getFlows(supabase, teamId),
   ]);
 
   const canCreateTriggers = connectedAccounts.length > 0 && flows.length > 0;

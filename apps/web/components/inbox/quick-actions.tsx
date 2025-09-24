@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@socialinbox/ui';
-import { Bot, BotOff, Archive, Star, Tag, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
+import { Bot, BotMessageSquare, Archive, Star, Tag, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import type { Database } from '@socialinbox/shared';
 
 type Conversation = Database['public']['Tables']['conversations']['Row'];
@@ -43,7 +43,7 @@ export function QuickActions({ conversation, onUpdateStatus, onToggleBot }: Quic
       >
         {conversation.is_bot_active ? (
           <>
-            <BotOff className="h-4 w-4 mr-2" />
+            <BotMessageSquare className="h-4 w-4 mr-2" />
             Bot Active
           </>
         ) : (

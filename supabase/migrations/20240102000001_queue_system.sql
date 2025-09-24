@@ -69,30 +69,43 @@ CREATE TABLE IF NOT EXISTS public.rate_limits (
 );
 
 -- Indexes for performance
-CREATE INDEX idx_flow_executions_status ON public.flow_executions(status, created_at);
-CREATE INDEX idx_flow_executions_conversation ON public.flow_executions(conversation_id);
-CREATE INDEX idx_message_queue_status ON public.message_queue(status, scheduled_at);
-CREATE INDEX idx_message_queue_conversation ON public.message_queue(conversation_id);
-CREATE INDEX idx_api_queue_status ON public.api_queue(status, priority, scheduled_at);
-CREATE INDEX idx_api_queue_account ON public.api_queue(ig_account_id);
-CREATE INDEX idx_rate_limits_account ON public.rate_limits(ig_account_id, api_type, window_start);
+CREATE INDEX IF NOT EXISTS idx_flow_executions_status ON public.flow_executions(status);
+CREATE INDEX IF NOT EXISTS idx_flow_executions_conversation ON public.flow_executions(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_message_queue_status ON public.message_queue(status, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_message_queue_conversation ON public.message_queue(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_api_queue_status ON public.api_queue(status, priority, scheduled_at);
+CREATE INDEX IF NOT EXISTS idx_api_queue_account ON public.api_queue(ig_account_id);
+CREATE INDEX IF NOT EXISTS idx_rate_limits_account ON public.rate_limits(ig_account_id, api_type, window_start);
+
+-- Create update trigger function if it doesn't exist
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 -- Updated at triggers
+DROP TRIGGER IF EXISTS update_flow_executions_updated_at ON public.flow_executions;
 CREATE TRIGGER update_flow_executions_updated_at
   BEFORE UPDATE ON public.flow_executions
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_message_queue_updated_at ON public.message_queue;
 CREATE TRIGGER update_message_queue_updated_at
   BEFORE UPDATE ON public.message_queue
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_api_queue_updated_at ON public.api_queue;
 CREATE TRIGGER update_api_queue_updated_at
   BEFORE UPDATE ON public.api_queue
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
+DROP TRIGGER IF EXISTS update_rate_limits_updated_at ON public.rate_limits;
 CREATE TRIGGER update_rate_limits_updated_at
   BEFORE UPDATE ON public.rate_limits
   FOR EACH ROW
@@ -109,7 +122,8 @@ CREATE POLICY "flow_executions_team_read" ON public.flow_executions
   FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.conversations c
-    JOIN public.team_members tm ON tm.team_id = c.team_id
+    JOIN public.ig_accounts ig ON ig.id = c.ig_account_id
+    JOIN public.team_members tm ON tm.team_id = ig.team_id
     WHERE c.id = flow_executions.conversation_id
     AND tm.user_id = auth.uid()
   ));
@@ -119,7 +133,8 @@ CREATE POLICY "message_queue_team_read" ON public.message_queue
   FOR SELECT
   USING (EXISTS (
     SELECT 1 FROM public.conversations c
-    JOIN public.team_members tm ON tm.team_id = c.team_id
+    JOIN public.ig_accounts ig ON ig.id = c.ig_account_id
+    JOIN public.team_members tm ON tm.team_id = ig.team_id
     WHERE c.id = message_queue.conversation_id
     AND tm.user_id = auth.uid()
   ));

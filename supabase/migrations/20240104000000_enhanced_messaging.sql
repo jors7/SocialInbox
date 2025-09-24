@@ -340,7 +340,8 @@ CREATE POLICY "message_performance_read" ON public.message_performance
   USING (EXISTS (
     SELECT 1 FROM public.messages m
     JOIN public.conversations c ON c.id = m.conversation_id
-    JOIN public.team_members tm ON tm.team_id = c.team_id
+    JOIN public.ig_accounts ig ON ig.id = c.ig_account_id
+    JOIN public.team_members tm ON tm.team_id = ig.team_id
     WHERE m.id = message_performance.message_id
     AND tm.user_id = auth.uid()
   ));

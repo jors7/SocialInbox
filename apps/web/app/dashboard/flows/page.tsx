@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { createServerComponentClient } from '../../../lib/supabase/server';
+import { getUserTeam } from '../../../lib/utils/team';
 import { Button } from '@socialinbox/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
 import { Badge } from '@socialinbox/ui';
@@ -27,17 +28,18 @@ async function getFlowTemplates(supabase: any) {
 }
 
 export default async function FlowsPage() {
-  const supabase = await createServerComponentClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  
-  // Get user's team
-  const { data: teamMember } = await supabase
-    .from('team_members')
-    .select('team_id')
-    .eq('user_id', user!.id)
-    .single();
+  const { error, teamId } = await getUserTeam();
 
-  const flows = await getFlows(supabase, teamMember.team_id);
+  if (error || !teamId) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <p className="text-gray-500">Team configuration not found. Please contact support.</p>
+      </div>
+    );
+  }
+
+  const supabase = await createServerComponentClient();
+  const flows = await getFlows(supabase, teamId);
   const templates = await getFlowTemplates(supabase);
 
   return (

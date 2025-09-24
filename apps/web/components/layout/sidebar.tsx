@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabase/client';
-import { cn } from '@socialinbox/ui/lib/utils';
+import { cn } from '@socialinbox/ui';
 import {
   Home,
   MessageSquare,

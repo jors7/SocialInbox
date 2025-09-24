@@ -1,6 +1,6 @@
 import { createServerComponentClient } from '../../lib/supabase/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
-import { MessageSquare, Users, Zap, TrendingUp } from 'lucide-react';
+import { MessageSquare, Users, Zap, TrendingUp, Instagram, Workflow } from 'lucide-react';
 
 async function getStats(supabase: any, userId: string) {
   // Get user's team
@@ -12,12 +12,12 @@ async function getStats(supabase: any, userId: string) {
 
   if (!teamMember) return null;
 
-  // Get team stats
+  // Get team stats - handle cases where tables might be empty
   const [
-    { count: conversationsCount },
-    { count: contactsCount },
-    { count: triggersCount },
-    { data: igAccounts },
+    conversationsResult,
+    contactsResult,
+    triggersResult,
+    accountsResult,
   ] = await Promise.all([
     supabase
       .from('conversations')
@@ -37,11 +37,16 @@ async function getStats(supabase: any, userId: string) {
       .eq('team_id', teamMember.team_id),
   ]);
 
+  const conversationsCount = conversationsResult?.count || 0;
+  const contactsCount = contactsResult?.count || 0;
+  const triggersCount = triggersResult?.count || 0;
+  const igAccounts = accountsResult?.data || [];
+
   return {
-    conversations: conversationsCount || 0,
-    contacts: contactsCount || 0,
-    triggers: triggersCount || 0,
-    accounts: igAccounts || [],
+    conversations: conversationsCount,
+    contacts: contactsCount,
+    triggers: triggersCount,
+    accounts: igAccounts,
   };
 }
 
@@ -118,7 +123,7 @@ export default async function DashboardPage() {
             <CardDescription>Manage your connected Instagram business accounts</CardDescription>
           </CardHeader>
           <CardContent>
-            {stats?.accounts.length === 0 ? (
+            {!stats?.accounts || stats.accounts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
                 <Instagram className="mb-4 h-12 w-12 text-gray-400" />
                 <p className="text-sm text-gray-600">No Instagram accounts connected yet</p>
@@ -131,7 +136,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {stats.accounts.map((account: any) => (
+                {stats?.accounts?.map((account: any) => (
                   <div
                     key={account.id}
                     className="flex items-center justify-between rounded-lg border p-4"

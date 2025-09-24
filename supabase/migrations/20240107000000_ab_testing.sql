@@ -2,10 +2,6 @@
 ALTER TABLE public.broadcast_campaigns
 ADD COLUMN IF NOT EXISTS ab_test_config JSONB DEFAULT NULL;
 
--- Add template variant tracking to broadcast_messages
-ALTER TABLE public.broadcast_messages
-ADD COLUMN IF NOT EXISTS template_variant TEXT DEFAULT 'A' CHECK (template_variant IN ('A', 'B'));
-
 -- Add A/B test results table
 CREATE TABLE IF NOT EXISTS public.ab_test_results (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -24,7 +20,6 @@ CREATE TABLE IF NOT EXISTS public.ab_test_results (
 );
 
 -- Indexes
-CREATE INDEX IF NOT EXISTS idx_broadcast_messages_template_variant ON public.broadcast_messages(campaign_id, template_variant);
 CREATE INDEX IF NOT EXISTS idx_ab_test_results_campaign_id ON public.ab_test_results(campaign_id);
 
 -- RLS Policy
@@ -42,43 +37,4 @@ CREATE POLICY "A/B test results belong to team" ON public.ab_test_results
     )
   );
 
--- Function to randomly assign template variants for A/B tests
-CREATE OR REPLACE FUNCTION assign_ab_test_variant()
-RETURNS TRIGGER AS $$
-DECLARE
-  campaign_config JSONB;
-  split_percentage INTEGER;
-  random_value NUMERIC;
-BEGIN
-  -- Get campaign A/B test config
-  SELECT ab_test_config INTO campaign_config
-  FROM broadcast_campaigns
-  WHERE id = NEW.campaign_id;
-  
-  -- If not an A/B test, default to variant A
-  IF campaign_config IS NULL THEN
-    NEW.template_variant := 'A';
-    RETURN NEW;
-  END IF;
-  
-  -- Get split percentage (defaults to 50 if not specified)
-  split_percentage := COALESCE((campaign_config->>'split_percentage')::INTEGER, 50);
-  
-  -- Generate random number between 0 and 100
-  random_value := random() * 100;
-  
-  -- Assign variant based on split percentage
-  IF random_value < split_percentage THEN
-    NEW.template_variant := 'B';
-  ELSE
-    NEW.template_variant := 'A';
-  END IF;
-  
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
--- Trigger to automatically assign A/B test variants
-CREATE TRIGGER assign_variant_on_message_create
-BEFORE INSERT ON public.broadcast_messages
-FOR EACH ROW EXECUTE FUNCTION assign_ab_test_variant();
+-- Note: A/B test variant assignment function and trigger will be added when broadcast_messages table is created
