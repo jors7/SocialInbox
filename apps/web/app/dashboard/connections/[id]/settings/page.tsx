@@ -2,13 +2,13 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
+import { createClient } from '../../../../../lib/supabase/client';
 import { Button } from '@socialinbox/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
 import { Label } from '@socialinbox/ui';
 import { Switch } from '@socialinbox/ui';
 import { ArrowLeft, Trash2, RefreshCw, ExternalLink } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { useToast } from '../../../../../hooks/use-toast';
 
 export default function ConnectionSettingsPage({ params }: { params: { id: string } }) {
   const [account, setAccount] = useState<any>(null);
