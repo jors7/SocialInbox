@@ -9,8 +9,10 @@ import { Input } from '@socialinbox/ui';
 import { Switch } from '@socialinbox/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
 import { ArrowLeft, Play, Pause } from 'lucide-react';
-import { FlowSpec, Flow } from '@socialinbox/shared';
+import { FlowSpec, Database } from '@socialinbox/shared';
 import { useToast } from '../../../../hooks/use-toast';
+
+type Flow = Database['public']['Tables']['flows']['Row'];
 
 export default function EditFlowPage({ params }: { params: { id: string } }) {
   const [flow, setFlow] = useState<Flow | null>(null);
@@ -34,7 +36,6 @@ export default function EditFlowPage({ params }: { params: { id: string } }) {
         toast({
           title: 'Error',
           description: 'Flow not found',
-          variant: 'destructive',
         });
         router.push('/dashboard/flows');
         return;
@@ -54,7 +55,6 @@ export default function EditFlowPage({ params }: { params: { id: string } }) {
       toast({
         title: 'Error',
         description: 'Please enter a flow name',
-        variant: 'destructive',
       });
       return;
     }
@@ -84,7 +84,6 @@ export default function EditFlowPage({ params }: { params: { id: string } }) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to update flow',
-        variant: 'destructive',
       });
     } finally {
       setSaving(false);
@@ -125,7 +124,6 @@ export default function EditFlowPage({ params }: { params: { id: string } }) {
       toast({
         title: 'Error',
         description: error.message || 'Failed to delete flow',
-        variant: 'destructive',
       });
     }
   };

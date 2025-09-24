@@ -47,8 +47,8 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
       case 'image':
         return (
           <img
-            src={media.public_url}
-            alt={media.file_name}
+            src={media.url}
+            alt={media.original_name}
             className="max-w-full max-h-[60vh] object-contain mx-auto"
           />
         );
@@ -56,7 +56,7 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
       case 'video':
         return (
           <video
-            src={media.public_url}
+            src={media.url}
             controls
             className="max-w-full max-h-[60vh] mx-auto"
           >
@@ -74,7 +74,7 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
               className="mt-4"
               asChild
             >
-              <a href={media.public_url} target="_blank" rel="noopener noreferrer">
+              <a href={media.url} target="_blank" rel="noopener noreferrer">
                 Open in new tab
               </a>
             </Button>
@@ -89,8 +89,8 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="flex items-center gap-2">
-              {getMediaIcon(media.media_type)}
-              {media.file_name}
+              {getMediaIcon(media.media_type || 'file')}
+              {media.original_name}
             </DialogTitle>
             <Button
               variant="ghost"
@@ -116,48 +116,25 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
             </div>
             <div>
               <p className="font-medium text-gray-500">Size</p>
-              <p className="mt-1">{formatSize(media.file_size)}</p>
+              <p className="mt-1">{formatSize(media.size)}</p>
             </div>
             <div>
               <p className="font-medium text-gray-500">Format</p>
               <p className="mt-1">{media.mime_type}</p>
             </div>
-            {media.width && media.height && (
-              <div>
-                <p className="font-medium text-gray-500">Dimensions</p>
-                <p className="mt-1">{media.width} × {media.height}</p>
-              </div>
-            )}
             <div>
               <p className="font-medium text-gray-500">Uploaded</p>
               <p className="mt-1">{format(new Date(media.created_at), 'MMM d, yyyy h:mm a')}</p>
             </div>
-            <div>
-              <p className="font-medium text-gray-500">Usage</p>
-              <p className="mt-1">{media.usage_count || 0} times</p>
-            </div>
           </div>
 
-          {/* Tags */}
-          {media.tags && media.tags.length > 0 && (
-            <div>
-              <p className="font-medium text-gray-500 text-sm mb-2">Tags</p>
-              <div className="flex flex-wrap gap-2">
-                {media.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* URL */}
           <div>
             <p className="font-medium text-gray-500 text-sm mb-2">Public URL</p>
             <div className="flex items-center gap-2">
               <code className="flex-1 bg-gray-100 px-3 py-2 rounded text-xs overflow-x-auto">
-                {media.public_url}
+                {media.url}
               </code>
               <Button
                 variant="outline"
@@ -183,7 +160,7 @@ export function MediaPreview({ media, open, onClose, onDelete, onCopyUrl }: Medi
                 variant="outline"
                 asChild
               >
-                <a href={media.public_url} download={media.file_name}>
+                <a href={media.url} download={media.original_name}>
                   <Download className="mr-2 h-4 w-4" />
                   Download
                 </a>

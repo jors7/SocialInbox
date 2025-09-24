@@ -42,7 +42,7 @@ export function ConversationList({
     <div className="divide-y divide-gray-200">
       {conversations.map((conversation) => {
         const isSelected = selectedConversation?.id === conversation.id;
-        const hasUnread = conversation.unread_count > 0;
+        const hasUnread = false; // TODO: Add unread tracking
 
         return (
           <div
@@ -64,7 +64,7 @@ export function ConversationList({
                     {conversation.instagram_username}
                   </h3>
                   <span className="text-xs text-gray-500">
-                    {conversation.last_message_at ? formatDistanceToNow(new Date(conversation.last_message_at), { addSuffix: true }) : 'No messages'}
+                    {conversation.last_message?.created_at ? formatDistanceToNow(new Date(conversation.last_message.created_at), { addSuffix: true }) : 'No messages'}
                   </span>
                 </div>
                 
@@ -86,18 +86,13 @@ export function ConversationList({
                     </Badge>
                   )}
                   
-                  {conversation.is_bot_active && (
+                  {conversation.status === 'bot' && (
                     <Badge variant="default" className="text-xs">
                       <Bot className="h-3 w-3 mr-1" />
                       Bot
                     </Badge>
                   )}
                   
-                  {hasUnread && (
-                    <Badge className="text-xs bg-blue-600">
-                      {conversation.unread_count}
-                    </Badge>
-                  )}
                 </div>
               </div>
             </div>

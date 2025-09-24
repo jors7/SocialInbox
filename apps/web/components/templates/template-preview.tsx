@@ -221,7 +221,6 @@ export function TemplatePreview({ contentType, content, variables = [] }: Templa
                 </Label>
                 <Input
                   id={`var-${variable}`}
-                  size="sm"
                   value={variableValues[variable] || defaultValues[variable] || ''}
                   onChange={(e) => setVariableValues({
                     ...variableValues,

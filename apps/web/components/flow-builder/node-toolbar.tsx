@@ -30,17 +30,20 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
   };
 
   const addQuickReply = () => {
-    const quickReplies = [...(nodeData.quickReplies || []), { text: 'New Option', go: 'end' }];
+    const currentReplies = Array.isArray(nodeData.quickReplies) ? nodeData.quickReplies : [];
+    const quickReplies = [...currentReplies, { text: 'New Option', go: 'end' }];
     handleChange('quickReplies', quickReplies);
   };
 
   const removeQuickReply = (index: number) => {
-    const quickReplies = nodeData.quickReplies.filter((_: any, i: number) => i !== index);
+    const currentReplies = Array.isArray(nodeData.quickReplies) ? nodeData.quickReplies : [];
+    const quickReplies = currentReplies.filter((_: any, i: number) => i !== index);
     handleChange('quickReplies', quickReplies);
   };
 
   const updateQuickReply = (index: number, field: string, value: string) => {
-    const quickReplies = [...nodeData.quickReplies];
+    const currentReplies = Array.isArray(nodeData.quickReplies) ? nodeData.quickReplies : [];
+    const quickReplies = [...currentReplies];
     quickReplies[index] = { ...quickReplies[index], [field]: value };
     handleChange('quickReplies', quickReplies);
   };
@@ -49,7 +52,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
     <div className="fixed right-4 top-20 z-50 w-80">
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-base">Edit {node.type.replace('_', ' ')}</CardTitle>
+          <CardTitle className="text-base">Edit {(node.type || '').replace('_', ' ')}</CardTitle>
           <div className="flex gap-1">
             <Button size="icon" variant="ghost" onClick={onDelete}>
               <Trash2 className="h-4 w-4" />
@@ -68,7 +71,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                 id="text"
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                 rows={3}
-                value={nodeData.text || ''}
+                value={(nodeData.text as string) || ''}
                 onChange={(e) => handleChange('text', e.target.value)}
                 placeholder="Enter your message..."
               />
@@ -87,7 +90,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                   id="text"
                   className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
                   rows={3}
-                  value={nodeData.text || ''}
+                  value={(nodeData.text as string) || ''}
                   onChange={(e) => handleChange('text', e.target.value)}
                   placeholder="Enter your message..."
                 />
@@ -100,7 +103,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                     Add
                   </Button>
                 </div>
-                {nodeData.quickReplies?.map((qr: any, index: number) => (
+                {(Array.isArray(nodeData.quickReplies) ? nodeData.quickReplies : []).map((qr: any, index: number) => (
                   <div key={index} className="flex items-center gap-2">
                     <Input
                       value={qr.text}
@@ -127,7 +130,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
               <Label htmlFor="condition">Condition</Label>
               <Input
                 id="condition"
-                value={nodeData.condition || ''}
+                value={(nodeData.condition as string) || ''}
                 onChange={(e) => handleChange('condition', e.target.value)}
                 placeholder="e.g., email exists"
               />
@@ -143,7 +146,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
               <div className="space-y-2">
                 <Label htmlFor="action">Action Type</Label>
                 <Select
-                  value={nodeData.action || ''}
+                  value={(nodeData.action as string) || ''}
                   onValueChange={(value) => handleChange('action', value)}
                 >
                   <SelectTrigger id="action">
@@ -164,9 +167,9 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                   <Label htmlFor="tag">Tag Name</Label>
                   <Input
                     id="tag"
-                    value={nodeData.params?.tag || ''}
+                    value={(nodeData.params as any)?.tag || ''}
                     onChange={(e) =>
-                      handleChange('params', { ...nodeData.params, tag: e.target.value })
+                      handleChange('params', { ...(nodeData.params || {}), tag: e.target.value })
                     }
                     placeholder="Enter tag name"
                   />
@@ -177,9 +180,9 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                     <Label htmlFor="varName">Variable Name</Label>
                     <Input
                       id="varName"
-                      value={nodeData.params?.name || ''}
+                      value={(nodeData.params as any)?.name || ''}
                       onChange={(e) =>
-                        handleChange('params', { ...nodeData.params, name: e.target.value })
+                        handleChange('params', { ...(nodeData.params || {}), name: e.target.value })
                       }
                       placeholder="e.g., userName"
                     />
@@ -188,9 +191,9 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
                     <Label htmlFor="varValue">Value</Label>
                     <Input
                       id="varValue"
-                      value={nodeData.params?.value || ''}
+                      value={(nodeData.params as any)?.value || ''}
                       onChange={(e) =>
-                        handleChange('params', { ...nodeData.params, value: e.target.value })
+                        handleChange('params', { ...(nodeData.params || {}), value: e.target.value })
                       }
                       placeholder="Enter value"
                     />
@@ -207,7 +210,7 @@ export function NodeToolbar({ node, onUpdate, onDelete, onClose }: NodeToolbarPr
               <Input
                 id="duration"
                 type="number"
-                value={nodeData.duration || ''}
+                value={(nodeData.duration as number) || ''}
                 onChange={(e) => handleChange('duration', parseInt(e.target.value, 10))}
                 placeholder="60"
               />

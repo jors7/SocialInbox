@@ -84,7 +84,6 @@ export default function TemplatesPage() {
       toast({
         title: 'Error',
         description: 'Failed to load templates',
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -121,6 +120,10 @@ export default function TemplatesPage() {
         .eq('user_id', user!.id)
         .single();
 
+      if (!teamMember) {
+        throw new Error('No team found');
+      }
+
       const { error } = await supabase
         .from('message_templates')
         .insert({
@@ -147,7 +150,6 @@ export default function TemplatesPage() {
       toast({
         title: 'Error',
         description: 'Failed to duplicate template',
-        variant: 'destructive',
       });
     }
   };
@@ -173,7 +175,6 @@ export default function TemplatesPage() {
       toast({
         title: 'Error',
         description: 'Failed to delete template',
-        variant: 'destructive',
       });
     }
   };

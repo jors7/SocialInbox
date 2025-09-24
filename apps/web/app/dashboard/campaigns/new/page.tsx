@@ -25,12 +25,14 @@ import {
   Info
 } from 'lucide-react';
 import { createClient } from '../../../../lib/supabase/client';
-import { toast } from '@socialinbox/ui';
+import { useToast } from '../../../../hooks/use-toast';
 import type { Database } from '@socialinbox/shared';
 
 type MessageTemplate = Database['public']['Tables']['message_templates']['Row'];
 type Contact = Database['public']['Tables']['contacts']['Row'];
-type ContactList = Database['public']['Tables']['contact_lists']['Row'];
+type ContactList = Database['public']['Tables']['contact_lists']['Row'] & {
+  list_members?: { count: number }[];
+};
 
 export default function NewCampaignPage() {
   const router = useRouter();
@@ -53,8 +55,9 @@ export default function NewCampaignPage() {
   const [enableABTest, setEnableABTest] = useState(false);
   const [selectedTemplateB, setSelectedTemplateB] = useState('');
   const [abTestSplitPercentage, setABTestSplitPercentage] = useState(50);
-  
+
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadData();
@@ -74,6 +77,8 @@ export default function NewCampaignPage() {
         .select('team_id')
         .eq('user_id', user!.id)
         .single();
+
+      if (!teamMember) return;
 
       setTeamId(teamMember.team_id);
 
@@ -160,17 +165,26 @@ export default function NewCampaignPage() {
 
   const handleCreate = async (status: 'draft' | 'scheduled' | 'running') => {
     if (!name || !selectedTemplate) {
-      toast.error('Please fill in all required fields');
+      toast({
+        title: 'Error',
+        description: 'Please fill in all required fields',
+      });
       return;
     }
 
     if (status === 'scheduled' && !scheduledAt) {
-      toast.error('Please select a scheduled date and time');
+      toast({
+        title: 'Error',
+        description: 'Please select a scheduled date and time',
+      });
       return;
     }
 
     if (selectedLists.length === 0) {
-      toast.error('Please select at least one contact list');
+      toast({
+        title: 'Error',
+        description: 'Please select at least one contact list',
+      });
       return;
     }
 
@@ -218,11 +232,17 @@ export default function NewCampaignPage() {
         await createBroadcastMessages(campaign.id);
       }
 
-      toast.success(`Campaign ${status === 'draft' ? 'saved as draft' : status === 'scheduled' ? 'scheduled' : 'started'} successfully`);
+      toast({
+        title: 'Success',
+        description: `Campaign ${status === 'draft' ? 'saved as draft' : status === 'scheduled' ? 'scheduled' : 'started'} successfully`,
+      });
       router.push(`/dashboard/campaigns/${campaign.id}`);
     } catch (error) {
       console.error('Failed to create campaign:', error);
-      toast.error('Failed to create campaign');
+      toast({
+        title: 'Error',
+        description: 'Failed to create campaign',
+      });
     } finally {
       setLoading(false);
     }

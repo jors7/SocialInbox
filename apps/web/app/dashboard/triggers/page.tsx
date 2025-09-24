@@ -158,7 +158,7 @@ export default async function TriggersPage() {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {triggers.map((trigger) => {
+          {triggers.map((trigger: any) => {
             const Icon = triggerTypeIcons[trigger.trigger_type as keyof typeof triggerTypeIcons];
             const label = triggerTypeLabels[trigger.trigger_type as keyof typeof triggerTypeLabels];
             

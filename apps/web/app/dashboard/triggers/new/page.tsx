@@ -71,10 +71,10 @@ export default function NewTriggerPage() {
       setFlows(flowsRes.data || []);
       
       // Pre-select first options
-      if (accountsRes.data?.length > 0) {
+      if (accountsRes.data && accountsRes.data.length > 0) {
         setSelectedAccount(accountsRes.data[0].id);
       }
-      if (flowsRes.data?.length > 0) {
+      if (flowsRes.data && flowsRes.data.length > 0) {
         setSelectedFlow(flowsRes.data[0].id);
       }
     } catch (error) {
@@ -82,7 +82,6 @@ export default function NewTriggerPage() {
       toast({
         title: 'Error',
         description: 'Failed to load accounts and flows',
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -149,6 +148,10 @@ export default function NewTriggerPage() {
         .eq('user_id', user!.id)
         .single();
 
+      if (!teamMember) {
+        throw new Error('No team found');
+      }
+
       // Filter out empty public replies
       const filteredPublicReplies = publicReplies.filter(reply => reply.trim() !== '');
 
@@ -156,7 +159,6 @@ export default function NewTriggerPage() {
         toast({
           title: 'Error',
           description: 'At least one public reply is required for comment triggers',
-          variant: 'destructive',
         });
         return;
       }
@@ -208,7 +210,6 @@ export default function NewTriggerPage() {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create trigger',
-        variant: 'destructive',
       });
     } finally {
       setSaving(false);

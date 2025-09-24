@@ -17,7 +17,9 @@ export const ConditionNode = memo(({ data, selected }: NodeProps) => {
         </div>
         <span className="text-sm font-semibold">Condition</span>
       </div>
-      <p className="text-sm text-gray-600 line-clamp-2">{data.condition || 'No condition'}</p>
+      <p className="text-sm text-gray-600 line-clamp-2">
+        {typeof data.condition === 'string' ? data.condition : 'No condition'}
+      </p>
       <div className="mt-3 flex justify-between">
         <div className="text-xs text-green-600">
           True

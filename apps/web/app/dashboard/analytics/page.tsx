@@ -71,7 +71,6 @@ export default function AnalyticsPage() {
       toast({
         title: 'Error',
         description: 'Failed to load analytics data',
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -131,7 +130,6 @@ export default function AnalyticsPage() {
       toast({
         title: 'Error',
         description: 'Failed to export analytics data',
-        variant: 'destructive',
       });
     }
   };

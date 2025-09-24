@@ -1,5 +1,5 @@
 import { createBrowserClient } from '@supabase/ssr';
-import type { Database } from '@socialinbox/shared/database.types';
+import type { Database } from '@socialinbox/shared';
 
 export function createClient() {
   return createBrowserClient<Database>(

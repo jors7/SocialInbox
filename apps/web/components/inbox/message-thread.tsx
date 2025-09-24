@@ -84,7 +84,7 @@ export function MessageThread({ messages, conversation, onSendMessage }: Message
                 {/* Messages for this date */}
                 <div className="space-y-4">
                   {dateMessages.map((message, index) => {
-                    const isFromUser = message.is_from_user;
+                    const isFromUser = message.direction === 'inbound';
                     const isLastMessage = index === messages.length - 1;
 
                     return (
@@ -109,12 +109,12 @@ export function MessageThread({ messages, conversation, onSendMessage }: Message
                                   : 'bg-blue-600 text-white'
                               }`}
                             >
-                              <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+                              <p className="text-sm whitespace-pre-wrap">{message.payload?.text || message.payload?.content || ''}</p>
                             </div>
                             
                             <div className={`flex items-center gap-2 text-xs text-gray-500 ${isFromUser ? '' : 'justify-end'}`}>
                               <span>{format(new Date(message.created_at), 'h:mm a')}</span>
-                              {message.flow_id && (
+                              {message.policy_tag === 'bot' && (
                                 <span className="flex items-center gap-1">
                                   <Bot className="h-3 w-3" />
                                   Automated
@@ -139,7 +139,7 @@ export function MessageThread({ messages, conversation, onSendMessage }: Message
           <div className="text-center py-2 text-sm text-gray-500">
             This conversation is closed
           </div>
-        ) : conversation.is_bot_active ? (
+        ) : conversation.status === 'bot' ? (
           <div className="text-center py-2 text-sm text-gray-500 flex items-center justify-center gap-2">
             <Bot className="h-4 w-4" />
             Bot is handling this conversation

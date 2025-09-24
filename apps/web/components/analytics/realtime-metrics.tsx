@@ -105,12 +105,8 @@ export function RealtimeMetrics({ teamId, accountId }: RealtimeMetricsProps) {
         .gt('created_at', oneHourAgo);
 
       if (accountId !== 'all') {
-        messagesQuery.in('conversation_id', 
-          supabase
-            .from('conversations')
-            .select('id')
-            .eq('ig_account_id', accountId)
-        );
+        // TODO: Filter by account
+        // For now, we'll show all data for the team
       }
 
       const { count: messagesLastHour } = await messagesQuery;

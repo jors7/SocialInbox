@@ -87,16 +87,16 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
   };
 
   const renderMessage = (message: Message) => {
-    const isFromUser = message.is_from_user;
+    const isFromUser = message.direction === 'inbound';
     
     // Check for rich content
-    const hasMedia = message.metadata?.attachments && message.metadata.attachments.length > 0;
-    const quickReply = message.metadata?.quick_reply;
+    const hasMedia = message.payload?.attachments && message.payload.attachments.length > 0;
+    const quickReply = message.payload?.quick_reply;
     
     return (
       <div className="space-y-1">
         {/* Text content */}
-        {message.content && (
+        {message.payload?.text && (
           <div
             className={`rounded-lg px-4 py-2 ${
               isFromUser
@@ -104,14 +104,14 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
                 : 'bg-blue-600 text-white'
             }`}
           >
-            <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap">{message.payload?.text}</p>
           </div>
         )}
         
         {/* Media attachments */}
         {hasMedia && (
           <div className="space-y-2">
-            {message.metadata.attachments.map((attachment: any, idx: number) => (
+            {message.payload.attachments.map((attachment: any, idx: number) => (
               <div key={idx} className="rounded-lg overflow-hidden">
                 {attachment.type === 'image' && (
                   <img
@@ -161,9 +161,9 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
         )}
         
         {/* Carousel */}
-        {message.metadata?.carousel && (
+        {message.payload?.carousel && (
           <div className="flex gap-2 overflow-x-auto py-2">
-            {message.metadata.carousel.cards.map((card: any, idx: number) => (
+            {message.payload.carousel.cards.map((card: any, idx: number) => (
               <div
                 key={idx}
                 className="flex-shrink-0 w-48 border rounded-lg overflow-hidden"
@@ -240,7 +240,7 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
                 {/* Messages for this date */}
                 <div className="space-y-4">
                   {dateMessages.map((message, index) => {
-                    const isFromUser = message.is_from_user;
+                    const isFromUser = message.direction === 'inbound';
                     const isLastMessage = index === messages.length - 1;
 
                     return (
@@ -262,7 +262,7 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
                             
                             <div className={`flex items-center gap-2 text-xs text-gray-500 ${isFromUser ? '' : 'justify-end'}`}>
                               <span>{format(new Date(message.created_at), 'h:mm a')}</span>
-                              {message.flow_id && (
+                              {message.policy_tag === 'bot' && (
                                 <span className="flex items-center gap-1">
                                   <Bot className="h-3 w-3" />
                                   Automated
@@ -330,7 +330,7 @@ export function RichMessageThread({ messages, conversation, onSendMessage }: Ric
             <div className="text-center py-2 text-sm text-gray-500">
               This conversation is closed
             </div>
-          ) : conversation.is_bot_active ? (
+          ) : conversation.status === 'bot' ? (
             <div className="text-center py-2 text-sm text-gray-500 flex items-center justify-center gap-2">
               <Bot className="h-4 w-4" />
               Bot is handling this conversation

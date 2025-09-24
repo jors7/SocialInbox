@@ -47,18 +47,8 @@ export function FlowPerformance({ teamId, accountId, dateRange }: FlowPerformanc
         .eq('team_id', teamId);
 
       if (accountId !== 'all') {
-        // Filter by flows that have executions for this account
-        flowsQuery.in('id', 
-          supabase
-            .from('flow_executions')
-            .select('flow_id')
-            .in('conversation_id',
-              supabase
-                .from('conversations')
-                .select('id')
-                .eq('ig_account_id', accountId)
-            )
-        );
+        // TODO: Filter by flows that have executions for this account
+        // For now, we'll show all flows for the team
       }
 
       const { data: flowsData } = await flowsQuery;

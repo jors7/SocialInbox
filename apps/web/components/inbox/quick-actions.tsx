@@ -8,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@socialinbox/ui';
-import { Bot, BotMessageSquare, Archive, Star, Tag, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
+import { Bot, BotIcon, Archive, Star, Tag, MoreVertical, CheckCircle, XCircle } from 'lucide-react';
 import type { Database } from '@socialinbox/shared';
 
 type Conversation = Database['public']['Tables']['conversations']['Row'];
@@ -35,15 +35,15 @@ export function QuickActions({ conversation, onUpdateStatus, onToggleBot }: Quic
     <div className="flex items-center gap-2">
       {/* Bot Toggle */}
       <Button
-        variant={conversation.is_bot_active ? 'default' : 'outline'}
+        variant={conversation.status === 'bot' ? 'default' : 'outline'}
         size="sm"
-        onClick={() => handleAction(() => onToggleBot(conversation.id, !conversation.is_bot_active))}
+        onClick={() => handleAction(() => onToggleBot(conversation.id, conversation.status !== 'bot'))}
         disabled={isProcessing}
-        title={conversation.is_bot_active ? 'Deactivate bot' : 'Activate bot'}
+        title={conversation.status === 'bot' ? 'Deactivate bot' : 'Activate bot'}
       >
-        {conversation.is_bot_active ? (
+        {conversation.status === 'bot' ? (
           <>
-            <BotMessageSquare className="h-4 w-4 mr-2" />
+            <BotIcon className="h-4 w-4 mr-2" />
             Bot Active
           </>
         ) : (

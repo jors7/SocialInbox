@@ -63,7 +63,7 @@ export default async function ConnectionsPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {connections.map((account) => (
+                {connections.map((account: any) => (
                   <div
                     key={account.id}
                     className="border rounded-lg p-4"

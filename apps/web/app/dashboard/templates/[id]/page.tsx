@@ -24,7 +24,7 @@ import { createClient } from '../../../../lib/supabase/client';
 import { TemplateBuilder } from '../../../../components/templates/template-builder';
 import { TemplatePreview } from '../../../../components/templates/template-preview';
 import { MediaSelector } from '../../../../components/media/media-selector';
-import { toast } from '@socialinbox/ui';
+import { useToast } from '../../../../hooks/use-toast';
 import type { Database } from '@socialinbox/shared';
 
 type MessageTemplate = Database['public']['Tables']['message_templates']['Row'];
@@ -46,6 +46,7 @@ export default function EditTemplatePage({ params }: { params: { id: string } })
   const [showMediaSelector, setShowMediaSelector] = useState(false);
   const [activeTab, setActiveTab] = useState('builder');
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadTemplate();
@@ -64,7 +65,10 @@ export default function EditTemplatePage({ params }: { params: { id: string } })
       setTemplate(data);
     } catch (error) {
       console.error('Failed to load template:', error);
-      toast.error('Failed to load template');
+      toast({
+        title: 'Error',
+        description: 'Failed to load template',
+      });
       router.push('/dashboard/templates');
     } finally {
       setLoading(false);
@@ -123,11 +127,17 @@ export default function EditTemplatePage({ params }: { params: { id: string } })
 
       if (error) throw error;
 
-      toast.success('Template updated successfully');
+      toast({
+        title: 'Success',
+        description: 'Template updated successfully',
+      });
       router.push('/dashboard/templates');
     } catch (error) {
       console.error('Failed to update template:', error);
-      toast.error('Failed to update template');
+      toast({
+        title: 'Error',
+        description: 'Failed to update template',
+      });
     } finally {
       setSaving(false);
     }
@@ -145,11 +155,17 @@ export default function EditTemplatePage({ params }: { params: { id: string } })
 
       if (error) throw error;
 
-      toast.success('Template deleted successfully');
+      toast({
+        title: 'Success',
+        description: 'Template deleted successfully',
+      });
       router.push('/dashboard/templates');
     } catch (error) {
       console.error('Failed to delete template:', error);
-      toast.error('Failed to delete template');
+      toast({
+        title: 'Error',
+        description: 'Failed to delete template',
+      });
     } finally {
       setDeleting(false);
     }

@@ -77,7 +77,7 @@ export default async function FlowsPage() {
           <div>
             <h2 className="mb-4 text-lg font-semibold">Start with a template</h2>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {templates.map((template) => (
+              {templates.map((template: any) => (
                 <Card key={template.id} className="cursor-pointer transition-shadow hover:shadow-lg">
                   <CardHeader>
                     <div className="flex items-start justify-between">
@@ -105,7 +105,7 @@ export default async function FlowsPage() {
         </div>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {flows.map((flow) => (
+          {flows.map((flow: any) => (
             <Card key={flow.id} className="cursor-pointer transition-shadow hover:shadow-lg">
               <Link href={`/dashboard/flows/${flow.id}`}>
                 <CardHeader>

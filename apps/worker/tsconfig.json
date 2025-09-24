@@ -5,6 +5,7 @@
     "rootDir": "./src",
     "lib": ["ES2022"],
     "module": "commonjs",
+    "moduleResolution": "node",
     "target": "ES2022",
     "esModuleInterop": true,
     "skipLibCheck": true,

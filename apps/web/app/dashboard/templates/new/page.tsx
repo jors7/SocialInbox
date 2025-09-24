@@ -83,7 +83,6 @@ export default function NewTemplatePage() {
       toast({
         title: 'Error',
         description: 'Template name is required',
-        variant: 'destructive',
       });
       return;
     }
@@ -97,6 +96,10 @@ export default function NewTemplatePage() {
         .select('team_id')
         .eq('user_id', user!.id)
         .single();
+
+      if (!teamMember) {
+        throw new Error('No team found');
+      }
 
       const { error } = await supabase
         .from('message_templates')
@@ -125,7 +128,6 @@ export default function NewTemplatePage() {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create template',
-        variant: 'destructive',
       });
     } finally {
       setSaving(false);

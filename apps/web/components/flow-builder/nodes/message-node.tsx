@@ -17,7 +17,9 @@ export const MessageNode = memo(({ data, selected }: NodeProps) => {
         </div>
         <span className="text-sm font-semibold">Message</span>
       </div>
-      <p className="text-sm text-gray-600 line-clamp-2">{data.text || 'No message'}</p>
+      <p className="text-sm text-gray-600 line-clamp-2">
+        {typeof data.text === 'string' ? data.text : 'No message'}
+      </p>
       <Handle type="source" position={Position.Bottom} className="h-2 w-2" />
     </div>
   );

@@ -34,7 +34,6 @@ export default function ConnectionSettingsPage({ params }: { params: { id: strin
       toast({
         title: 'Error',
         description: 'Account not found',
-        variant: 'destructive',
       });
       router.push('/dashboard/connections');
       return;
@@ -86,7 +85,6 @@ export default function ConnectionSettingsPage({ params }: { params: { id: strin
       toast({
         title: 'Error',
         description: error.message || 'Failed to disconnect account',
-        variant: 'destructive',
       });
     } finally {
       setDeleting(false);

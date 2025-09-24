@@ -82,6 +82,10 @@ export default function CampaignsPage() {
         .eq('user_id', user!.id)
         .single();
 
+      if (!teamMember) {
+        throw new Error('No team found');
+      }
+
       const { data, error } = await supabase
         .from('broadcast_campaigns')
         .select(`

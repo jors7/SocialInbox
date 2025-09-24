@@ -109,19 +109,19 @@ export default async function TeamPage() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Admins</span>
                 <span className="font-medium">
-                  {members.filter(m => m.role === 'admin' || m.role === 'owner').length}
+                  {members.filter((m: any) => m.role === 'admin' || m.role === 'owner').length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Agents</span>
                 <span className="font-medium">
-                  {members.filter(m => m.role === 'agent').length}
+                  {members.filter((m: any) => m.role === 'agent').length}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-500">Viewers</span>
                 <span className="font-medium">
-                  {members.filter(m => m.role === 'viewer').length}
+                  {members.filter((m: any) => m.role === 'viewer').length}
                 </span>
               </div>
             </div>

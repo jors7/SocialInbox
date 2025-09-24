@@ -24,7 +24,7 @@ export const WaitNode = memo(({ data, selected }: NodeProps) => {
         <span className="text-sm font-semibold">Wait</span>
       </div>
       <p className="text-sm text-gray-600">
-        {data.duration ? formatDuration(data.duration) : 'No duration'}
+        {typeof data.duration === 'number' ? formatDuration(data.duration) : 'No duration'}
       </p>
       <Handle type="source" position={Position.Bottom} className="h-2 w-2" />
     </div>

@@ -24,7 +24,969 @@ export type Database = {
           created_at?: string;
         };
       };
-      // Add other tables as needed
+      message_templates: {
+        Row: {
+          id: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          category?: string;
+          content_type: string;
+          content: any;
+          variables?: string[];
+          is_active?: boolean;
+          usage_count?: number;
+          last_used_at?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          category?: string;
+          content_type: string;
+          content: any;
+          variables?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          name?: string;
+          description?: string;
+          category?: string;
+          content_type?: string;
+          content?: any;
+          variables?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      broadcast_campaigns: {
+        Row: {
+          id: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          template_id?: string;
+          is_ab_test?: boolean;
+          status: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          filters?: any;
+          message_count?: number;
+          sent_count?: number;
+          delivered_count?: number;
+          read_count?: number;
+          replied_count?: number;
+          failed_count?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          template_id?: string;
+          status?: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          filters?: any;
+          message_count?: number;
+          sent_count?: number;
+          delivered_count?: number;
+          read_count?: number;
+          replied_count?: number;
+          failed_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          name?: string;
+          description?: string;
+          template_id?: string;
+          status?: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          filters?: any;
+          message_count?: number;
+          sent_count?: number;
+          delivered_count?: number;
+          read_count?: number;
+          replied_count?: number;
+          failed_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      campaign_lists: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          list_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          list_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          list_id?: string;
+          created_at?: string;
+        };
+      };
+      contact_lists: {
+        Row: {
+          id: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          filters?: any;
+          member_count?: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          name: string;
+          description?: string;
+          filters?: any;
+          member_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          name?: string;
+          description?: string;
+          filters?: any;
+          member_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      broadcast_messages: {
+        Row: {
+          id: string;
+          campaign_id: string;
+          contact_id: string;
+          status: string;
+          sent_at?: string;
+          delivered_at?: string;
+          read_at?: string;
+          opened_at?: string;
+          clicked_at?: string;
+          replied_at?: string;
+          failed_at?: string;
+          error?: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          campaign_id: string;
+          contact_id: string;
+          status?: string;
+          sent_at?: string;
+          delivered_at?: string;
+          read_at?: string;
+          opened_at?: string;
+          clicked_at?: string;
+          replied_at?: string;
+          failed_at?: string;
+          error?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          campaign_id?: string;
+          contact_id?: string;
+          status?: string;
+          sent_at?: string;
+          delivered_at?: string;
+          read_at?: string;
+          opened_at?: string;
+          clicked_at?: string;
+          replied_at?: string;
+          failed_at?: string;
+          error?: string;
+          created_at?: string;
+        };
+      };
+      conversations: {
+        Row: {
+          id: string;
+          team_id: string;
+          ig_account_id: string;
+          ig_thread_id: string;
+          contact_id: string;
+          instagram_user_id?: string;
+          instagram_username?: string;
+          last_user_ts?: string;
+          last_agent_ts?: string;
+          window_expires_at?: string;
+          status: string;
+          human_agent_until?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          ig_account_id: string;
+          ig_thread_id: string;
+          contact_id: string;
+          instagram_user_id?: string;
+          instagram_username?: string;
+          last_user_ts?: string;
+          last_agent_ts?: string;
+          window_expires_at?: string;
+          status?: string;
+          human_agent_until?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          ig_account_id?: string;
+          ig_thread_id?: string;
+          contact_id?: string;
+          instagram_user_id?: string;
+          instagram_username?: string;
+          last_user_ts?: string;
+          last_agent_ts?: string;
+          window_expires_at?: string;
+          status?: string;
+          human_agent_until?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      messages: {
+        Row: {
+          id: string;
+          conversation_id: string;
+          direction: string;
+          msg_type: string;
+          payload: any;
+          policy_tag: string;
+          delivery_status: string;
+          sent_at?: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          conversation_id: string;
+          direction: string;
+          msg_type: string;
+          payload: any;
+          policy_tag?: string;
+          delivery_status?: string;
+          sent_at?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          conversation_id?: string;
+          direction?: string;
+          msg_type?: string;
+          payload?: any;
+          policy_tag?: string;
+          delivery_status?: string;
+          sent_at?: string;
+          created_at?: string;
+        };
+      };
+      flows: {
+        Row: {
+          id: string;
+          team_id: string;
+          name: string;
+          spec: any;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          name: string;
+          spec: any;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          name?: string;
+          spec?: any;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      contacts: {
+        Row: {
+          id: string;
+          team_id: string;
+          ig_account_id: string;
+          ig_user_id: string;
+          username?: string;
+          display_name?: string;
+          first_name?: string;
+          last_name?: string;
+          profile_picture?: string;
+          email?: string;
+          phone?: string;
+          attributes?: any;
+          tags?: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          ig_account_id: string;
+          ig_user_id: string;
+          username?: string;
+          display_name?: string;
+          first_name?: string;
+          last_name?: string;
+          profile_picture?: string;
+          email?: string;
+          phone?: string;
+          attributes?: any;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          ig_account_id?: string;
+          ig_user_id?: string;
+          username?: string;
+          display_name?: string;
+          first_name?: string;
+          last_name?: string;
+          profile_picture?: string;
+          email?: string;
+          phone?: string;
+          attributes?: any;
+          tags?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      media_library: {
+        Row: {
+          id: string;
+          team_id: string;
+          filename: string;
+          original_name: string;
+          mime_type: string;
+          media_type?: string;
+          size: number;
+          url: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          filename: string;
+          original_name: string;
+          mime_type: string;
+          media_type?: string;
+          size: number;
+          url: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          filename?: string;
+          original_name?: string;
+          mime_type?: string;
+          media_type?: string;
+          size?: number;
+          url?: string;
+          created_at?: string;
+        };
+      };
+      team_members: {
+        Row: {
+          id: string;
+          team_id: string;
+          user_id: string;
+          role: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          user_id: string;
+          role?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          user_id?: string;
+          role?: string;
+          created_at?: string;
+        };
+      };
+      ig_accounts: {
+        Row: {
+          id: string;
+          team_id: string;
+          ig_user_id: string;
+          username: string;
+          name?: string;
+          profile_picture_url?: string;
+          access_token: string;
+          expires_at?: string;
+          is_active: boolean;
+          webhook_verified: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          ig_user_id: string;
+          username: string;
+          name?: string;
+          profile_picture_url?: string;
+          access_token: string;
+          expires_at?: string;
+          is_active?: boolean;
+          webhook_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          ig_user_id?: string;
+          username?: string;
+          name?: string;
+          profile_picture_url?: string;
+          access_token?: string;
+          expires_at?: string;
+          is_active?: boolean;
+          webhook_verified?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      triggers: {
+        Row: {
+          id: string;
+          team_id: string;
+          ig_account_id: string;
+          flow_id: string;
+          trigger_type: string;
+          conditions?: any;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          ig_account_id: string;
+          flow_id: string;
+          trigger_type: string;
+          conditions?: any;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          ig_account_id?: string;
+          flow_id?: string;
+          trigger_type?: string;
+          conditions?: any;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      flow_templates: {
+        Row: {
+          id: string;
+          name: string;
+          description?: string;
+          category: string;
+          spec: any;
+          preview_image?: string;
+          is_featured: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string;
+          category: string;
+          spec: any;
+          preview_image?: string;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string;
+          category?: string;
+          spec?: any;
+          preview_image?: string;
+          is_featured?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      analytics_daily: {
+        Row: {
+          id: string;
+          team_id: string;
+          date: string;
+          messages_sent: number;
+          messages_received: number;
+          conversations_started: number;
+          conversations_resolved: number;
+          response_time_avg: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          date: string;
+          messages_sent?: number;
+          messages_received?: number;
+          conversations_started?: number;
+          conversations_resolved?: number;
+          response_time_avg?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          date?: string;
+          messages_sent?: number;
+          messages_received?: number;
+          conversations_started?: number;
+          conversations_resolved?: number;
+          response_time_avg?: number;
+          created_at?: string;
+        };
+      };
+      user_engagement: {
+        Row: {
+          id: string;
+          team_id: string;
+          contact_id: string;
+          engagement_score: number;
+          last_interaction: string;
+          total_messages: number;
+          avg_response_time: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          contact_id: string;
+          engagement_score?: number;
+          last_interaction: string;
+          total_messages?: number;
+          avg_response_time?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          contact_id?: string;
+          engagement_score?: number;
+          last_interaction?: string;
+          total_messages?: number;
+          avg_response_time?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      funnel_analytics: {
+        Row: {
+          id: string;
+          team_id: string;
+          flow_id: string;
+          step_name: string;
+          total_entries: number;
+          completed: number;
+          dropped_off: number;
+          conversion_rate: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          flow_id: string;
+          step_name: string;
+          total_entries?: number;
+          completed?: number;
+          dropped_off?: number;
+          conversion_rate?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          flow_id?: string;
+          step_name?: string;
+          total_entries?: number;
+          completed?: number;
+          dropped_off?: number;
+          conversion_rate?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      flow_executions: {
+        Row: {
+          id: string;
+          team_id: string;
+          flow_id: string;
+          conversation_id: string;
+          trigger_id?: string;
+          current_step: string;
+          context: any;
+          status: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          error?: string;
+          retry_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          flow_id: string;
+          conversation_id: string;
+          trigger_id?: string;
+          current_step: string;
+          context?: any;
+          status?: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          error?: string;
+          retry_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          flow_id?: string;
+          conversation_id?: string;
+          trigger_id?: string;
+          current_step?: string;
+          context?: any;
+          status?: string;
+          scheduled_at?: string;
+          started_at?: string;
+          completed_at?: string;
+          error?: string;
+          retry_count?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      media: {
+        Row: {
+          id: string;
+          team_id: string;
+          filename: string;
+          url: string;
+          mime_type: string;
+          size: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          filename: string;
+          url: string;
+          mime_type: string;
+          size: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          filename?: string;
+          url?: string;
+          mime_type?: string;
+          size?: number;
+          created_at?: string;
+        };
+      };
+      contact_list_members: {
+        Row: {
+          id: string;
+          list_id: string;
+          contact_id: string;
+          added_at: string;
+        };
+        Insert: {
+          id?: string;
+          list_id: string;
+          contact_id: string;
+          added_at?: string;
+        };
+        Update: {
+          id?: string;
+          list_id?: string;
+          contact_id?: string;
+          added_at?: string;
+        };
+      };
+      events_inbox: {
+        Row: {
+          id: string;
+          ig_account_id: string;
+          event_type: string;
+          payload: any;
+          processed: boolean;
+          processed_at?: string;
+          error?: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          ig_account_id: string;
+          event_type: string;
+          payload: any;
+          processed?: boolean;
+          processed_at?: string;
+          error?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          ig_account_id?: string;
+          event_type?: string;
+          payload?: any;
+          processed?: boolean;
+          processed_at?: string;
+          error?: string;
+          created_at?: string;
+        };
+      };
+      trigger_metrics: {
+        Row: {
+          id: string;
+          trigger_id: string;
+          total_fires: number;
+          successful_executions: number;
+          failed_executions: number;
+          avg_execution_time: number;
+          last_fired_at?: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          trigger_id: string;
+          total_fires?: number;
+          successful_executions?: number;
+          failed_executions?: number;
+          avg_execution_time?: number;
+          last_fired_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          trigger_id?: string;
+          total_fires?: number;
+          successful_executions?: number;
+          failed_executions?: number;
+          avg_execution_time?: number;
+          last_fired_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      message_queue: {
+        Row: {
+          id: string;
+          team_id: string;
+          conversation_id: string;
+          message_type: string;
+          payload: any;
+          priority: number;
+          status: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          error?: string;
+          retry_count: number;
+          max_retries: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          conversation_id: string;
+          message_type: string;
+          payload: any;
+          priority?: number;
+          status?: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          error?: string;
+          retry_count?: number;
+          max_retries?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          conversation_id?: string;
+          message_type?: string;
+          payload?: any;
+          priority?: number;
+          status?: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          error?: string;
+          retry_count?: number;
+          max_retries?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      api_queue: {
+        Row: {
+          id: string;
+          team_id: string;
+          ig_account_id: string;
+          endpoint: string;
+          method: string;
+          payload: any;
+          priority: number;
+          status: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          response?: any;
+          error?: string;
+          retry_count: number;
+          max_retries: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          team_id: string;
+          ig_account_id: string;
+          endpoint: string;
+          method: string;
+          payload?: any;
+          priority?: number;
+          status?: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          response?: any;
+          error?: string;
+          retry_count?: number;
+          max_retries?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          team_id?: string;
+          ig_account_id?: string;
+          endpoint?: string;
+          method?: string;
+          payload?: any;
+          priority?: number;
+          status?: string;
+          scheduled_at?: string;
+          sent_at?: string;
+          failed_at?: string;
+          response?: any;
+          error?: string;
+          retry_count?: number;
+          max_retries?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      rate_limits: {
+        Row: {
+          id: string;
+          ig_account_id: string;
+          limit_type: string;
+          current_usage: number;
+          max_limit: number;
+          reset_at: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          ig_account_id: string;
+          limit_type: string;
+          current_usage?: number;
+          max_limit: number;
+          reset_at: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          ig_account_id?: string;
+          limit_type?: string;
+          current_usage?: number;
+          max_limit?: number;
+          reset_at?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
     Views: {};
     Functions: {};

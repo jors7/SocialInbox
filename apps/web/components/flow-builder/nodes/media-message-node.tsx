@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Handle, Position } from 'reactflow';
+import { Handle, Position } from '@xyflow/react';
 import { Card } from '@socialinbox/ui';
 import { Badge } from '@socialinbox/ui';
 import { Image, Video, FileText, MessageSquare } from 'lucide-react';

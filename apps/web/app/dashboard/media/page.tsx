@@ -81,7 +81,6 @@ export default function MediaPage() {
       toast({
         title: 'Error',
         description: 'Failed to load media library',
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -100,8 +99,8 @@ export default function MediaPage() {
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
-        item.file_name.toLowerCase().includes(query) ||
-        item.tags?.some(tag => tag.toLowerCase().includes(query))
+        item.filename.toLowerCase().includes(query) ||
+        item.original_name.toLowerCase().includes(query)
       );
     }
 
@@ -119,6 +118,10 @@ export default function MediaPage() {
         .eq('user_id', user!.id)
         .single();
 
+      if (!teamMember) {
+        throw new Error('No team found');
+      }
+
       for (const file of Array.from(files)) {
         // Validate file
         const maxSize = 50 * 1024 * 1024; // 50MB
@@ -126,8 +129,7 @@ export default function MediaPage() {
           toast({
             title: 'File too large',
             description: `${file.name} exceeds 50MB limit`,
-            variant: 'destructive',
-          });
+              });
           continue;
         }
 
@@ -153,7 +155,7 @@ export default function MediaPage() {
         // Get image dimensions if it's an image
         let width, height;
         if (mediaType === 'image') {
-          const img = new Image();
+          const img = new window.Image();
           await new Promise((resolve) => {
             img.onload = () => {
               width = img.width;
@@ -171,7 +173,7 @@ export default function MediaPage() {
             team_id: teamMember.team_id,
             media_type: mediaType,
             file_name: file.name,
-            file_size: file.size,
+            size: file.size,
             mime_type: file.type,
             storage_url: uploadData.path,
             public_url: publicUrl,
@@ -195,7 +197,6 @@ export default function MediaPage() {
       toast({
         title: 'Upload failed',
         description: 'Failed to upload media files',
-        variant: 'destructive',
       });
     } finally {
       setUploading(false);
@@ -209,7 +210,7 @@ export default function MediaPage() {
       // Delete from storage
       const { error: storageError } = await supabase.storage
         .from('media')
-        .remove([item.storage_url]);
+        .remove([item.filename]);
 
       if (storageError) throw storageError;
 
@@ -236,7 +237,6 @@ export default function MediaPage() {
       toast({
         title: 'Error',
         description: 'Failed to delete media',
-        variant: 'destructive',
       });
     }
   };
@@ -254,7 +254,7 @@ export default function MediaPage() {
     setPreviewOpen(true);
   };
 
-  const totalSize = media.reduce((sum, item) => sum + item.file_size, 0);
+  const totalSize = media.reduce((sum, item) => sum + item.size, 0);
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -444,7 +444,7 @@ export default function MediaPage() {
             setSelectedMedia(null);
           }}
           onDelete={() => handleDelete(selectedMedia)}
-          onCopyUrl={() => handleCopyUrl(selectedMedia.public_url)}
+          onCopyUrl={() => handleCopyUrl(selectedMedia.url)}
         />
       )}
     </div>

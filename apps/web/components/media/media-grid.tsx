@@ -52,10 +52,11 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
 
   const getThumbnail = (item: MediaItem) => {
     if (item.media_type === 'image') {
-      return item.public_url;
+      return item.url;
     }
-    if (item.thumbnail_url) {
-      return item.thumbnail_url;
+    // TODO: Add thumbnail support
+    if ((item as any).thumbnail_url) {
+      return (item as any).thumbnail_url;
     }
     return null;
   };
@@ -75,12 +76,12 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                 {thumbnail ? (
                   <img
                     src={thumbnail}
-                    alt={item.file_name}
+                    alt={item.original_name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    {getMediaIcon(item.media_type)}
+                    {getMediaIcon(item.media_type || 'file')}
                   </div>
                 )}
                 
@@ -98,9 +99,9 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
               <div className="p-3">
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate">{item.file_name}</p>
+                    <p className="text-sm font-medium truncate">{item.original_name}</p>
                     <p className="text-xs text-gray-500">
-                      {formatSize(item.file_size)} • {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                      {formatSize(item.size)} • {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
                     </p>
                   </div>
                   
@@ -115,12 +116,12 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                         <Eye className="mr-2 h-4 w-4" />
                         Preview
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => onCopyUrl(item.public_url)}>
+                      <DropdownMenuItem onClick={() => onCopyUrl(item.url)}>
                         <Copy className="mr-2 h-4 w-4" />
                         Copy URL
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <a href={item.public_url} download={item.file_name}>
+                        <a href={item.url} download={item.original_name}>
                           <Download className="mr-2 h-4 w-4" />
                           Download
                         </a>
@@ -137,15 +138,6 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                   </DropdownMenu>
                 </div>
 
-                {item.tags && item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {item.tags.slice(0, 3).map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
             </Card>
           );
@@ -172,12 +164,12 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                 {thumbnail ? (
                   <img
                     src={thumbnail}
-                    alt={item.file_name}
+                    alt={item.original_name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center">
-                    {getMediaIcon(item.media_type)}
+                    {getMediaIcon(item.media_type || 'file')}
                   </div>
                 )}
               </div>
@@ -185,27 +177,15 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
               {/* Details */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
-                  <p className="font-medium truncate">{item.file_name}</p>
+                  <p className="font-medium truncate">{item.original_name}</p>
                   <Badge variant="outline" className="flex-shrink-0">
                     {item.media_type}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                  <span>{formatSize(item.file_size)}</span>
-                  {item.width && item.height && (
-                    <span>{item.width} × {item.height}</span>
-                  )}
+                  <span>{formatSize(item.size)}</span>
                   <span>{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</span>
                 </div>
-                {item.tags && item.tags.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {item.tags.map((tag) => (
-                      <Badge key={tag} variant="secondary" className="text-xs">
-                        {tag}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {/* Actions */}
@@ -215,7 +195,7 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                   size="sm"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onCopyUrl(item.public_url);
+                    onCopyUrl(item.url);
                   }}
                 >
                   <Copy className="h-4 w-4" />
@@ -225,7 +205,7 @@ export function MediaGrid({ media, viewMode, onPreview, onDelete, onCopyUrl }: M
                   size="sm"
                   asChild
                 >
-                  <a href={item.public_url} download={item.file_name}>
+                  <a href={item.url} download={item.original_name}>
                     <Download className="h-4 w-4" />
                   </a>
                 </Button>

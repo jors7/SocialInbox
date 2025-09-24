@@ -27,13 +27,13 @@ export const ActionNode = memo(({ data, selected }: NodeProps) => {
         <span className="text-sm font-semibold">Action</span>
       </div>
       <p className="text-sm text-gray-600">
-        {actionLabels[data.action] || data.action || 'No action'}
+        {typeof data.action === 'string' ? (actionLabels[data.action] || data.action) : 'No action'}
       </p>
-      {data.params && (
+      {data.params && typeof data.params === 'object' ? (
         <p className="text-xs text-gray-500 mt-1">
           {Object.entries(data.params).map(([key, value]) => `${key}: ${value}`).join(', ')}
         </p>
-      )}
+      ) : null}
       <Handle type="source" position={Position.Bottom} className="h-2 w-2" />
     </div>
   );

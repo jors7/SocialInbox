@@ -41,7 +41,6 @@ export function ConnectionAlerts() {
       toast({
         title: 'Connection Error',
         description: message,
-        variant: 'destructive',
       });
     }
   }, [searchParams, toast]);

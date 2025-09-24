@@ -1,11 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import ReactFlow, {
+import {
+  ReactFlow,
   Node,
   Edge,
   addEdge,
   Background,
+  BackgroundVariant,
   Controls,
   MiniMap,
   useNodesState,
@@ -51,8 +53,8 @@ interface FlowBuilderProps {
 }
 
 export function FlowBuilder({ initialFlow, onSave, onTest }: FlowBuilderProps) {
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
 
   // Initialize flow
@@ -326,7 +328,7 @@ export function FlowBuilder({ initialFlow, onSave, onTest }: FlowBuilderProps) {
             </Button>
           </div>
         </Panel>
-        <Background variant="dots" gap={12} size={1} />
+        <Background variant={BackgroundVariant.Dots} gap={12} size={1} />
         <Controls />
         <MiniMap />
       </ReactFlow>

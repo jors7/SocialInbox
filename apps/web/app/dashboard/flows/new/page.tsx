@@ -47,7 +47,6 @@ export default function NewFlowPage() {
       toast({
         title: 'Error',
         description: 'Please enter a flow name',
-        variant: 'destructive',
       });
       return;
     }
@@ -94,7 +93,6 @@ export default function NewFlowPage() {
       toast({
         title: 'Error',
         description: error.message || 'Failed to create flow',
-        variant: 'destructive',
       });
     } finally {
       setSaving(false);

@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { cookies } from 'next/headers';
-import type { Database } from '@socialinbox/shared/database.types';
+import type { Database } from '@socialinbox/shared';
 
 export async function createServerComponentClient() {
   const cookieStore = cookies();

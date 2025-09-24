@@ -17,9 +17,11 @@ export const QuickReplyNode = memo(({ data, selected }: NodeProps) => {
         </div>
         <span className="text-sm font-semibold">Quick Reply</span>
       </div>
-      <p className="text-sm text-gray-600 mb-2 line-clamp-2">{data.text || 'No message'}</p>
+      <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+        {typeof data.text === 'string' ? data.text : 'No message'}
+      </p>
       <div className="space-y-1">
-        {data.quickReplies?.map((qr: any, index: number) => (
+        {Array.isArray(data.quickReplies) && data.quickReplies.map((qr: any, index: number) => (
           <div key={index} className="flex items-center justify-between">
             <span className="text-xs bg-gray-100 px-2 py-1 rounded">{qr.text}</span>
             <Handle

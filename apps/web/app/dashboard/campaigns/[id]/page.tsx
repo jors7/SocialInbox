@@ -26,7 +26,7 @@ import {
   Edit
 } from 'lucide-react';
 import { createClient } from '../../../../lib/supabase/client';
-import { toast } from '@socialinbox/ui';
+import { useToast } from '../../../../hooks/use-toast';
 import type { Database } from '@socialinbox/shared';
 
 type BroadcastCampaign = Database['public']['Tables']['broadcast_campaigns']['Row'] & {
@@ -92,6 +92,7 @@ export default function CampaignDetailsPage({ params }: { params: { id: string }
   const [refreshing, setRefreshing] = useState(false);
   const [abTestStats, setABTestStats] = useState<ABTestStats | null>(null);
   const supabase = createClient();
+  const { toast } = useToast();
 
   useEffect(() => {
     loadCampaign();
@@ -189,7 +190,10 @@ export default function CampaignDetailsPage({ params }: { params: { id: string }
       }
     } catch (error) {
       console.error('Failed to load campaign:', error);
-      toast.error('Failed to load campaign');
+      toast({
+        title: 'Error',
+        description: 'Failed to load campaign',
+      });
       router.push('/dashboard/campaigns');
     } finally {
       setLoading(false);
@@ -200,7 +204,10 @@ export default function CampaignDetailsPage({ params }: { params: { id: string }
     setRefreshing(true);
     await loadCampaign();
     setRefreshing(false);
-    toast.success('Campaign data refreshed');
+    toast({
+      title: 'Success',
+      description: 'Campaign data refreshed',
+    });
   };
 
   const handleCampaignAction = async (action: 'start' | 'pause' | 'resume' | 'delete') => {
@@ -226,7 +233,10 @@ export default function CampaignDetailsPage({ params }: { params: { id: string }
               .eq('id', campaign.id);
 
             if (error) throw error;
-            toast.success('Campaign deleted');
+            toast({
+              title: 'Success',
+              description: 'Campaign deleted',
+            });
             router.push('/dashboard/campaigns');
             return;
           }
@@ -235,7 +245,10 @@ export default function CampaignDetailsPage({ params }: { params: { id: string }
       await loadCampaign();
     } catch (error) {
       console.error(`Failed to ${action} campaign:`, error);
-      toast.error(`Failed to ${action} campaign`);
+      toast({
+        title: 'Error',
+        description: `Failed to ${action} campaign`,
+      });
     }
   };
 

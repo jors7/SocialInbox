@@ -53,6 +53,8 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
         .eq('user_id', user!.id)
         .single();
 
+      if (!teamMember) return;
+
       const query = supabase
         .from('media_library')
         .select('*')
@@ -82,7 +84,7 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(item => 
-        item.file_name.toLowerCase().includes(query)
+        item.original_name.toLowerCase().includes(query)
       );
     }
 
@@ -112,7 +114,7 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
           {/* Controls */}
           <div className="flex items-center gap-4">
             {mediaType === 'all' && (
-              <Tabs value={selectedType} onValueChange={setSelectedType}>
+              <Tabs value={selectedType} onValueChange={(value) => setSelectedType(value as 'image' | 'video')}>
                 <TabsList>
                   <TabsTrigger value="image">Images</TabsTrigger>
                   <TabsTrigger value="video">Videos</TabsTrigger>
@@ -167,8 +169,8 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
                   >
                     {item.media_type === 'image' ? (
                       <img
-                        src={item.public_url}
-                        alt={item.file_name}
+                        src={item.url}
+                        alt={item.original_name}
                         className="w-full h-32 object-cover"
                       />
                     ) : (
@@ -186,7 +188,7 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
                     )}
                     
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-2">
-                      <p className="text-white text-xs truncate">{item.file_name}</p>
+                      <p className="text-white text-xs truncate">{item.original_name}</p>
                     </div>
                   </div>
                 ))}
@@ -199,7 +201,7 @@ export function MediaSelector({ open, onClose, onSelect, mediaType = 'all' }: Me
             <div>
               {selectedMedia && (
                 <p className="text-sm text-gray-600">
-                  Selected: {selectedMedia.file_name}
+                  Selected: {selectedMedia.original_name}
                 </p>
               )}
             </div>

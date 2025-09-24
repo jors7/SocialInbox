@@ -16,7 +16,18 @@ import { QuickActions } from '../../../components/inbox/quick-actions';
 import { useToast } from '../../../hooks/use-toast';
 import type { Database } from '@socialinbox/shared';
 
-type Conversation = Database['public']['Tables']['conversations']['Row'];
+type Conversation = Database['public']['Tables']['conversations']['Row'] & {
+  ig_accounts?: {
+    id: string;
+    username: string;
+  };
+  messages?: Array<{
+    id: string;
+    content: string;
+    is_from_user: boolean;
+    created_at: string;
+  }>;
+};
 type Message = Database['public']['Tables']['messages']['Row'];
 
 export default function InboxPage() {
@@ -76,7 +87,6 @@ export default function InboxPage() {
       toast({
         title: 'Error',
         description: 'Failed to load inbox data',
-        variant: 'destructive',
       });
     } finally {
       setLoading(false);
@@ -180,7 +190,7 @@ export default function InboxPage() {
               .select('team_id')
               .eq('user_id', user!.id)
               .single();
-            
+
             if (teamMember) {
               loadConversations(teamMember.team_id);
             }
@@ -241,7 +251,6 @@ export default function InboxPage() {
       toast({
         title: 'Error',
         description: 'Failed to send message',
-        variant: 'destructive',
       });
     }
   };
@@ -261,7 +270,6 @@ export default function InboxPage() {
       toast({
         title: 'Error',
         description: 'Failed to update conversation status',
-        variant: 'destructive',
       });
     }
   };
@@ -286,7 +294,6 @@ export default function InboxPage() {
       toast({
         title: 'Error',
         description: 'Failed to update bot status',
-        variant: 'destructive',
       });
     }
   };
