@@ -15,6 +15,7 @@
     "test": "turbo test",
     "lint": "turbo lint",
     "typecheck": "turbo typecheck",
+    "type-check": "turbo typecheck",
     "clean": "turbo clean && rm -rf node_modules",
     "db:migrate": "cd supabase && supabase migration up",
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts",
