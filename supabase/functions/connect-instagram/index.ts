@@ -5,6 +5,8 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const ENCRYPTION_KEY = Deno.env.get('APP_ENCRYPTION_KEY')!;
 const META_APP_ID = Deno.env.get('META_APP_ID')!;
+const META_APP_SECRET = Deno.env.get('META_APP_SECRET')!;
+const META_GRAPH_API_VERSION = Deno.env.get('META_GRAPH_API_VERSION') || 'v20.0';
 
 interface ConnectInstagramRequest {
   accessToken: string;
@@ -44,10 +46,10 @@ Deno.serve(async (req) => {
 
     // Exchange short-lived token for long-lived token
     const longLivedTokenResponse = await fetch(
-      `https://graph.facebook.com/v18.0/oauth/access_token?` +
+      `https://graph.facebook.com/${META_GRAPH_API_VERSION}/oauth/access_token?` +
       `grant_type=fb_exchange_token&` +
       `client_id=${META_APP_ID}&` +
-      `client_secret=${Deno.env.get('META_APP_SECRET')}&` +
+      `client_secret=${META_APP_SECRET}&` +
       `fb_exchange_token=${accessToken}`
     );
 
@@ -60,10 +62,10 @@ Deno.serve(async (req) => {
     const longLivedToken = longLivedTokenData.access_token;
     const expiresIn = longLivedTokenData.expires_in || 5184000; // 60 days default
 
-    // Get user's Facebook pages
+    // Get user's Facebook pages with Instagram Business accounts
     const pagesResponse = await fetch(
-      `https://graph.facebook.com/v18.0/me/accounts?` +
-      `fields=id,name,access_token,instagram_business_account{id,username}&` +
+      `https://graph.facebook.com/${META_GRAPH_API_VERSION}/me/accounts?` +
+      `fields=id,name,access_token,instagram_business_account{id,username,profile_picture_url}&` +
       `access_token=${longLivedToken}`
     );
 
@@ -98,7 +100,7 @@ Deno.serve(async (req) => {
 
     // Get page access token (long-lived)
     const pageTokenResponse = await fetch(
-      `https://graph.facebook.com/v18.0/${selectedPage.id}?` +
+      `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${selectedPage.id}?` +
       `fields=access_token&` +
       `access_token=${longLivedToken}`
     );
@@ -168,8 +170,8 @@ Deno.serve(async (req) => {
       accountId = newAccount.id;
     }
 
-    // Subscribe to webhooks
-    await subscribeToWebhooks(igAccount.id, pageAccessToken);
+    // Note: Webhook subscription is configured in Meta App Dashboard for Instagram object
+    // Not via API for Instagram Messaging
 
     // Test connection and check Connected Tools status
     const connectedToolsEnabled = await testConnection(igAccount.id, pageAccessToken);
@@ -198,39 +200,16 @@ Deno.serve(async (req) => {
   }
 });
 
-async function subscribeToWebhooks(igUserId: string, accessToken: string) {
-  try {
-    // Subscribe to Instagram webhooks
-    const webhookUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/meta-webhook`;
-    
-    const subscribeResponse = await fetch(
-      `https://graph.facebook.com/v18.0/${igUserId}/subscribed_apps`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          access_token: accessToken,
-          subscribed_fields: 'messages,messaging_postbacks,messaging_optins,message_deliveries,message_reads,messaging_payments,messaging_pre_checkouts,messaging_checkout_updates,messaging_handovers,messaging_policy_enforcement',
-        }),
-      }
-    );
-
-    const result = await subscribeResponse.json();
-    console.log('Webhook subscription result:', result);
-  } catch (error) {
-    console.error('Failed to subscribe to webhooks:', error);
-    // Non-critical error, continue
-  }
-}
+// Webhook subscription for Instagram Messaging is configured in the Meta App Dashboard
+// Under Webhooks > Instagram > Edit Subscription
+// This is different from Facebook Page webhooks which use /subscribed_apps
 
 async function testConnection(igUserId: string, accessToken: string): Promise<boolean> {
   try {
-    // Try to send a test message to check if Connected Tools is enabled
-    // This will fail if Connected Tools is not enabled
+    // Test Instagram Messaging API access
+    // This checks if the account has proper permissions
     const testResponse = await fetch(
-      `https://graph.facebook.com/v18.0/me/messages`,
+      `https://graph.facebook.com/${META_GRAPH_API_VERSION}/me/messages`,
       {
         method: 'POST',
         headers: {

@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 const META_WEBHOOK_VERIFY_TOKEN = Deno.env.get('META_WEBHOOK_VERIFY_TOKEN')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const META_GRAPH_API_VERSION = Deno.env.get('META_GRAPH_API_VERSION') || 'v20.0';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -31,34 +32,31 @@ serve(async (req) => {
       const body = await req.json();
       console.log('Webhook received:', JSON.stringify(body, null, 2));
 
-      // Process each entry
+      // Process Instagram webhook events
+      // Instagram Messaging events come through the Instagram object subscription
       for (const entry of body.entry || []) {
         const igAccountId = entry.id;
-        
-        // Get the Instagram account
-        const { data: igAccount } = await supabase
-          .from('ig_accounts')
-          .select('*')
-          .eq('instagram_user_id', igAccountId)
-          .single();
 
-        if (!igAccount) {
-          console.error('Instagram account not found:', igAccountId);
-          continue;
-        }
-
-        // Process messaging events
-        for (const messaging of entry.messaging || []) {
-          await processMessage(messaging, igAccount);
-        }
-
-        // Process comments
+        // Process changes (Instagram webhook format)
         for (const change of entry.changes || []) {
-          if (change.field === 'comments') {
-            await processComment(change.value, igAccount);
-          } else if (change.field === 'mentions') {
-            await processMention(change.value, igAccount);
+          // Handle Instagram messages via Messenger API format
+          if (change.field === 'messages') {
+            const messageData = change.value;
+            await processInstagramMessage(messageData, igAccountId);
           }
+          // Handle comments
+          else if (change.field === 'comments') {
+            await processComment(change.value, igAccountId);
+          }
+          // Handle mentions
+          else if (change.field === 'mentions') {
+            await processMention(change.value, igAccountId);
+          }
+        }
+
+        // Also handle direct messaging format (if present)
+        for (const messaging of entry.messaging || []) {
+          await processDirectMessage(messaging, igAccountId);
         }
       }
 
@@ -72,7 +70,100 @@ serve(async (req) => {
   return new Response('Method Not Allowed', { status: 405 });
 });
 
-async function processMessage(messaging: any, igAccount: any) {
+async function processInstagramMessage(messageData: any, igAccountId: string) {
+  try {
+    // Get the Instagram account from database
+    const { data: igAccount } = await supabase
+      .from('ig_accounts')
+      .select('*')
+      .eq('instagram_user_id', igAccountId)
+      .single();
+
+    if (!igAccount) {
+      console.error('Instagram account not found:', igAccountId);
+      return;
+    }
+
+    // Extract message details from Instagram webhook format
+    const { from, to, message } = messageData;
+    const senderId = from.id;
+    const recipientId = to.data[0]?.id || igAccountId;
+
+    // Skip if message is from the business account
+    if (senderId === igAccount.instagram_user_id) {
+      return;
+    }
+
+    // Get or create conversation
+    let conversation = await getOrCreateConversation(igAccount, senderId, from.username);
+
+    // Process the message
+    if (message) {
+      // Insert message
+      const { data: newMessage, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: conversation.id,
+          instagram_message_id: message.mid || messageData.id,
+          content: message.text || '[Media]',
+          is_from_user: true,
+          message_type: message.attachments ? 'media' : 'text',
+          metadata: {
+            attachments: message.attachments,
+            timestamp: messageData.timestamp,
+          },
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error inserting message:', error);
+        return;
+      }
+
+      // Update conversation
+      await supabase
+        .from('conversations')
+        .update({
+          last_message_at: new Date().toISOString(),
+          unread_count: conversation.unread_count + 1,
+          status: 'open',
+        })
+        .eq('id', conversation.id);
+
+      // Process with bot if active
+      if (conversation.is_bot_active && conversation.active_flow_id) {
+        // Queue message for flow processing
+        await queueFlowExecution(conversation, newMessage);
+      }
+    }
+  } catch (error) {
+    console.error('Error processing Instagram message:', error);
+  }
+}
+
+async function processDirectMessage(messaging: any, igAccountId: string) {
+  // This handles the Messenger-style format if it comes through
+  try {
+    // Get the Instagram account from database
+    const { data: igAccount } = await supabase
+      .from('ig_accounts')
+      .select('*')
+      .eq('instagram_user_id', igAccountId)
+      .single();
+
+    if (!igAccount) {
+      console.error('Instagram account not found:', igAccountId);
+      return;
+    }
+
+    await processMessagingEvent(messaging, igAccount);
+  } catch (error) {
+    console.error('Error processing direct message:', error);
+  }
+}
+
+async function processMessagingEvent(messaging: any, igAccount: any) {
   const senderId = messaging.sender.id;
   const recipientId = messaging.recipient.id;
   
@@ -141,8 +232,20 @@ async function processMessage(messaging: any, igAccount: any) {
   }
 }
 
-async function processComment(comment: any, igAccount: any) {
+async function processComment(comment: any, igAccountId: string) {
   console.log('Processing comment:', comment);
+
+  // Get the Instagram account from database
+  const { data: igAccount } = await supabase
+    .from('ig_accounts')
+    .select('*')
+    .eq('instagram_user_id', igAccountId)
+    .single();
+
+  if (!igAccount) {
+    console.error('Instagram account not found:', igAccountId);
+    return;
+  }
   
   // Check if we have triggers for comments
   const { data: triggers } = await supabase
@@ -183,8 +286,20 @@ async function processComment(comment: any, igAccount: any) {
   }
 }
 
-async function processMention(mention: any, igAccount: any) {
+async function processMention(mention: any, igAccountId: string) {
   console.log('Processing mention:', mention);
+
+  // Get the Instagram account from database
+  const { data: igAccount } = await supabase
+    .from('ig_accounts')
+    .select('*')
+    .eq('instagram_user_id', igAccountId)
+    .single();
+
+  if (!igAccount) {
+    console.error('Instagram account not found:', igAccountId);
+    return;
+  }
   
   // Similar to comment processing but for mentions
   const { data: triggers } = await supabase
