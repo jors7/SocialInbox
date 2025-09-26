@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabase/client';
 import { cn } from '@socialinbox/ui';
@@ -44,6 +45,13 @@ export function Sidebar() {
   return (
     <div className="flex h-full w-64 flex-col bg-gray-900">
       <div className="flex h-16 shrink-0 items-center px-6">
+        <Image
+          src="/socialinbox.png"
+          alt="SocialInbox Logo"
+          width={32}
+          height={32}
+          className="mr-3"
+        />
         <h1 className="text-xl font-bold text-white">SocialInbox</h1>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
