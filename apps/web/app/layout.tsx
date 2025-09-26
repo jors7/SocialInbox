@@ -16,11 +16,6 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "SocialInbox - Instagram DM Automation Platform",
   description: "ManyChat-style Instagram DM automation platform for complete direct message automation",
-  icons: {
-    icon: "/socialinbox.png",
-    shortcut: "/socialinbox.png",
-    apple: "/socialinbox.png",
-  },
 };
 
 export default function RootLayout({
@@ -30,11 +25,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" href="/socialinbox.png" type="image/png" />
-        <link rel="shortcut icon" href="/socialinbox.png" type="image/png" />
-        <link rel="apple-touch-icon" href="/socialinbox.png" />
-      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
