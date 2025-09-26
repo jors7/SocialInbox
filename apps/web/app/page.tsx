@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { createServerComponentClient } from '../lib/supabase/server';
 import { Button } from '@socialinbox/ui';
 import { MessageSquare, Zap, BarChart3, Instagram } from 'lucide-react';
@@ -19,6 +20,13 @@ export default async function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
+              <Image
+                src="/socialinbox.png"
+                alt="SocialInbox Logo"
+                width={32}
+                height={32}
+                className="mr-2"
+              />
               <h1 className="text-xl font-bold">SocialInbox</h1>
             </div>
             <nav className="flex items-center space-x-4">
