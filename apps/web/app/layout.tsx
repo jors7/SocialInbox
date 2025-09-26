@@ -17,13 +17,9 @@ export const metadata: Metadata = {
   title: "SocialInbox - Instagram DM Automation Platform",
   description: "ManyChat-style Instagram DM automation platform for complete direct message automation",
   icons: {
-    icon: [
-      { url: "/socialinbox.png", type: "image/png" },
-      { url: "/favicon.ico", type: "image/x-icon" },
-    ],
-    apple: [
-      { url: "/socialinbox.png" },
-    ],
+    icon: "/socialinbox.png",
+    shortcut: "/socialinbox.png",
+    apple: "/socialinbox.png",
   },
 };
 
@@ -34,6 +30,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/socialinbox.png" type="image/png" />
+        <link rel="shortcut icon" href="/socialinbox.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/socialinbox.png" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
