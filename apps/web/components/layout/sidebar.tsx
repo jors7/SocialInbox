@@ -16,7 +16,7 @@ import {
   LogOut,
   Users,
   Activity,
-  Image,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 const navigation = [
@@ -24,7 +24,7 @@ const navigation = [
   { name: 'Inbox', href: '/dashboard/inbox', icon: MessageSquare },
   { name: 'Flows', href: '/dashboard/flows', icon: Workflow },
   { name: 'Triggers', href: '/dashboard/triggers', icon: Zap },
-  { name: 'Media', href: '/dashboard/media', icon: Image },
+  { name: 'Media', href: '/dashboard/media', icon: ImageIcon },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Queue', href: '/dashboard/queue', icon: Activity },
   { name: 'Connections', href: '/dashboard/connections', icon: Instagram },
