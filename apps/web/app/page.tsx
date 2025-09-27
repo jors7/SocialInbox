@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { createServerComponentClient } from '../lib/supabase/server';
 import { Button } from '@socialinbox/ui';
 import { MessageSquare, Zap, BarChart3, Instagram } from 'lucide-react';
+import HowItWorksSection from '../components/sections/HowItWorksSection';
 
 export default async function HomePage() {
   const supabase = await createServerComponentClient();
@@ -40,6 +41,9 @@ export default async function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* How It Works Section */}
+      <HowItWorksSection />
 
       {/* Hero */}
       <section className="py-20">
