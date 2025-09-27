@@ -217,7 +217,7 @@ export default function HowItWorksSection() {
           className="relative"
         >
           {/* Vertical Line */}
-          <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-green-200 via-purple-400 to-blue-600"></div>
+          <div className="hidden lg:block absolute left-8 w-1 h-full bg-gradient-to-b from-green-200 via-purple-400 to-blue-600"></div>
 
           {/* Steps */}
           {steps.map((step, index) => (
