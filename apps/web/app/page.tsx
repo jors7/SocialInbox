@@ -42,9 +42,6 @@ export default async function HomePage() {
         </div>
       </header>
 
-      {/* How It Works Section */}
-      <HowItWorksSection />
-
       {/* Hero */}
       <section className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -69,6 +66,9 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* How It Works Section */}
+      <HowItWorksSection />
 
       {/* Features */}
       <section id="features" className="py-20 bg-gray-50">

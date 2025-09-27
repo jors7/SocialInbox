@@ -20,29 +20,52 @@ export default function HowItWorksSection() {
       additional: "We handle all the complex webhook setup, token management, and API permissions — you just click connect and you're ready to go.",
       color: "green",
       mockup: (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex space-x-2 mb-4">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="flex space-x-1.5 mb-3">
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
           </div>
-          <div className="space-y-4">
-            <div className="flex items-center justify-center">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-                <svg className="w-12 h-12 text-white" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3z"/>
-                </svg>
-              </div>
-            </div>
-            <div className="text-center">
-              <div className="text-lg font-bold text-gray-800">Instagram Connected</div>
-              <div className="text-sm text-gray-500 mt-1">@yourbusiness</div>
-            </div>
-            <div className="flex justify-center">
-              <div className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium flex items-center space-x-2">
+          <div className="space-y-3">
+            {/* Account Card */}
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg p-3 border border-purple-200">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
+                  <svg className="w-6 h-6 text-white" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4a5.8 5.8 0 0 1-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8A5.8 5.8 0 0 1 7.8 2m-.2 2A3.6 3.6 0 0 0 4 7.6v8.8C4 18.39 5.61 20 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6C20 5.61 18.39 4 16.4 4H7.6m9.65 1.5a1.25 1.25 0 0 1 1.25 1.25A1.25 1.25 0 0 1 17.25 8A1.25 1.25 0 0 1 16 6.75a1.25 1.25 0 0 1 1.25-1.25M12 7a5 5 0 0 1 5 5a5 5 0 0 1-5 5a5 5 0 0 1-5-5a5 5 0 0 1 5-5m0 2a3 3 0 0 0-3 3a3 3 0 0 0 3 3a3 3 0 0 0 3-3a3 3 0 0 0-3-3z"/>
+                  </svg>
+                </div>
+                <div className="flex-1">
+                  <div className="text-sm font-semibold text-gray-800">@yourbusiness</div>
+                  <div className="text-xs text-gray-500">Business Account</div>
+                </div>
                 <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                <span>Active</span>
               </div>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-3 gap-2">
+              <div className="bg-gray-50 rounded p-2 text-center">
+                <div className="text-xs text-gray-500">Followers</div>
+                <div className="text-sm font-bold text-gray-800">24.5K</div>
+              </div>
+              <div className="bg-gray-50 rounded p-2 text-center">
+                <div className="text-xs text-gray-500">Messages</div>
+                <div className="text-sm font-bold text-gray-800">1.2K</div>
+              </div>
+              <div className="bg-gray-50 rounded p-2 text-center">
+                <div className="text-xs text-gray-500">Response</div>
+                <div className="text-sm font-bold text-gray-800">98%</div>
+              </div>
+            </div>
+
+            {/* Connection Status */}
+            <div className="flex items-center justify-between bg-green-50 rounded-lg px-3 py-2">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-3 h-3 text-green-600" />
+                <span className="text-xs font-medium text-green-700">Webhook Active</span>
+              </div>
+              <span className="text-xs text-green-600">Live</span>
             </div>
           </div>
         </div>
@@ -55,57 +78,112 @@ export default function HowItWorksSection() {
       additional: "Use pre-built templates or start from scratch. Add conditions, delays, user inputs, and connect to your favorite tools like Shopify, email platforms, and CRMs.",
       color: "purple",
       mockup: (
-        <div className="bg-white rounded-xl shadow-lg p-6">
-          <div className="flex space-x-2 mb-4">
-            <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <div className="w-3 h-3 rounded-full bg-green-500"></div>
+        <div className="bg-white rounded-xl shadow-lg p-4">
+          <div className="flex space-x-1.5 mb-3">
+            <div className="w-2 h-2 rounded-full bg-red-500"></div>
+            <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
+            <div className="w-2 h-2 rounded-full bg-green-500"></div>
           </div>
           <div className="space-y-3">
-            {/* Start Node */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-purple-500 flex items-center justify-center text-white font-bold">
-                S
+            {/* Mini Flow Builder Header */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <div className="text-xs font-semibold text-gray-700">Flow Builder</div>
+                <div className="bg-purple-100 text-purple-600 text-[10px] px-2 py-0.5 rounded-full">Comment Automation</div>
               </div>
-              <div className="flex-1 bg-purple-100 rounded-lg px-3 py-2">
-                <div className="text-xs font-medium text-purple-700">Start: Comment Trigger</div>
-              </div>
-            </div>
-
-            {/* Connection Line */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 flex justify-center">
-                <div className="w-0.5 h-8 bg-purple-300"></div>
-              </div>
-              <div className="text-xs text-gray-400">↓</div>
-            </div>
-
-            {/* Message Node */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded bg-purple-500 flex items-center justify-center">
-                <MessageCircle className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex-1 bg-purple-50 rounded-lg px-3 py-2">
-                <div className="text-xs text-purple-600">Send DM</div>
+              <div className="flex items-center space-x-1">
+                <div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>
+                <span className="text-[10px] text-green-600">Active</span>
               </div>
             </div>
 
-            {/* Connection Line */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 flex justify-center">
-                <div className="w-0.5 h-8 bg-purple-300"></div>
+            {/* Horizontal Flow */}
+            <div className="bg-gradient-to-r from-purple-50 via-blue-50 to-green-50 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                {/* Start */}
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="w-8 h-8 rounded-full bg-purple-500 flex items-center justify-center shadow-sm">
+                    <Zap className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[9px] text-gray-600">Start</span>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex-1 mx-1">
+                  <div className="h-0.5 bg-purple-400 relative">
+                    <div className="absolute right-0 -top-[3px]">
+                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-purple-400"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Message */}
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="w-8 h-8 rounded bg-blue-500 flex items-center justify-center shadow-sm">
+                    <MessageCircle className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[9px] text-gray-600">Message</span>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex-1 mx-1">
+                  <div className="h-0.5 bg-blue-400 relative">
+                    <div className="absolute right-0 -top-[3px]">
+                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-blue-400"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Wait */}
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="w-8 h-8 rounded bg-orange-500 flex items-center justify-center shadow-sm">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] text-gray-600">Wait</span>
+                </div>
+
+                {/* Arrow */}
+                <div className="flex-1 mx-1">
+                  <div className="h-0.5 bg-orange-400 relative">
+                    <div className="absolute right-0 -top-[3px]">
+                      <div className="w-0 h-0 border-t-[4px] border-t-transparent border-b-[4px] border-b-transparent border-l-[6px] border-orange-400"></div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tag */}
+                <div className="flex flex-col items-center space-y-1">
+                  <div className="w-8 h-8 rounded bg-green-500 flex items-center justify-center shadow-sm">
+                    <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                  </div>
+                  <span className="text-[9px] text-gray-600">Tag</span>
+                </div>
               </div>
-              <div className="text-xs text-gray-400">↓</div>
             </div>
 
-            {/* End Node */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center text-white font-bold">
-                E
+            {/* Stats Bar */}
+            <div className="flex items-center justify-between bg-gray-50 rounded px-3 py-2">
+              <div className="flex items-center space-x-3">
+                <div className="text-center">
+                  <div className="text-xs font-bold text-gray-800">4</div>
+                  <div className="text-[9px] text-gray-500">Nodes</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-xs font-bold text-gray-800">1.2k</div>
+                  <div className="text-[9px] text-gray-500">Sent/day</div>
+                </div>
+                <div className="w-px h-6 bg-gray-300"></div>
+                <div className="text-center">
+                  <div className="text-xs font-bold text-gray-800">95%</div>
+                  <div className="text-[9px] text-gray-500">Success</div>
+                </div>
               </div>
-              <div className="flex-1 bg-green-50 rounded-lg px-3 py-2">
-                <div className="text-xs font-medium text-green-700">End Flow</div>
-              </div>
+              <button className="text-[10px] text-purple-600 hover:text-purple-700 font-medium">Edit →</button>
             </div>
           </div>
         </div>
