@@ -2,14 +2,14 @@
 
 import { motion } from 'framer-motion';
 import {
-  ChartBarIcon,
-  SparklesIcon,
-  ArrowsRightLeftIcon,
-  ChatBubbleLeftRightIcon,
-  BoltIcon,
-  CogIcon,
-  RocketLaunchIcon
-} from '@heroicons/react/24/outline';
+  BarChart3,
+  Sparkles,
+  ArrowLeftRight,
+  MessageCircle,
+  Zap,
+  Settings2,
+  Rocket
+} from 'lucide-react';
 
 export default function HowItWorksSection() {
   const steps = [
@@ -33,7 +33,7 @@ export default function HowItWorksSection() {
             </div>
             <div className="flex items-center space-x-2 text-green-600">
               <div className="w-5 h-5 rounded-full bg-green-100 flex items-center justify-center">
-                <SparklesIcon className="w-3 h-3" />
+                <Sparkles className="w-3 h-3" />
               </div>
               <span className="text-sm font-medium">Connected Successfully</span>
             </div>
@@ -77,7 +77,7 @@ export default function HowItWorksSection() {
             </div>
             <div className="absolute -right-2 -top-2">
               <div className="animate-spin">
-                <CogIcon className="w-8 h-8 text-purple-500" />
+                <Settings2 className="w-8 h-8 text-purple-500" />
               </div>
             </div>
           </div>
@@ -105,15 +105,15 @@ export default function HowItWorksSection() {
             </div>
             <div className="space-y-2">
               <div className="flex items-center space-x-2">
-                <BoltIcon className="w-4 h-4 text-pink-500" />
+                <Zap className="w-4 h-4 text-pink-500" />
                 <span className="text-xs">Comment "DISCOUNT" → Send promo code</span>
               </div>
               <div className="flex items-center space-x-2">
-                <BoltIcon className="w-4 h-4 text-pink-500" />
+                <Zap className="w-4 h-4 text-pink-500" />
                 <span className="text-xs">Story reply → Product catalog</span>
               </div>
               <div className="flex items-center space-x-2">
-                <BoltIcon className="w-4 h-4 text-pink-500" />
+                <Zap className="w-4 h-4 text-pink-500" />
                 <span className="text-xs">@mention → Welcome flow</span>
               </div>
             </div>
@@ -143,7 +143,7 @@ export default function HowItWorksSection() {
             <div className="bg-blue-50 p-3 rounded-lg">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-medium text-blue-700">This Week</span>
-                <ArrowsRightLeftIcon className="w-4 h-4 text-blue-500" />
+                <ArrowLeftRight className="w-4 h-4 text-blue-500" />
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
@@ -157,7 +157,7 @@ export default function HowItWorksSection() {
               </div>
             </div>
             <div className="flex items-center space-x-2">
-              <ChartBarIcon className="w-4 h-4 text-blue-500" />
+              <BarChart3 className="w-4 h-4 text-blue-500" />
               <div className="flex-1 bg-gray-200 rounded-full h-2">
                 <div className="bg-gradient-to-r from-blue-400 to-blue-600 h-2 rounded-full" style={{width: '75%'}}></div>
               </div>
