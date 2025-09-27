@@ -217,7 +217,7 @@ export default function HowItWorksSection() {
           className="relative"
         >
           {/* Vertical Line */}
-          <div className="hidden lg:block absolute left-8 w-1 h-full bg-gradient-to-b from-green-200 via-purple-400 to-blue-600"></div>
+          <div className="hidden lg:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-gradient-to-b from-green-200 via-purple-400 to-blue-600"></div>
 
           {/* Steps */}
           {steps.map((step, index) => (
@@ -225,11 +225,17 @@ export default function HowItWorksSection() {
               key={step.number}
               variants={stepVariants}
               custom={index}
-              className="relative mb-16 lg:mb-24 lg:ml-16"
+              className={`relative mb-16 lg:mb-24 ${
+                index % 2 === 0 ? 'lg:pr-1/2' : 'lg:pl-1/2 lg:ml-auto'
+              }`}
             >
-              <div className="lg:flex items-center">
+              <div className={`lg:flex items-center ${
+                index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'
+              }`}>
                 {/* Step Number - Mobile/Desktop Responsive */}
-                <div className="flex items-center mb-4 lg:mb-0 lg:absolute lg:-left-16">
+                <div className={`flex items-center mb-4 lg:mb-0 ${
+                  index % 2 === 0 ? 'lg:mr-8' : 'lg:ml-8'
+                }`}>
                   <div className={`
                     relative w-12 h-12 lg:w-16 lg:h-16 rounded-full
                     flex items-center justify-center font-bold text-white text-lg lg:text-2xl
@@ -247,9 +253,11 @@ export default function HowItWorksSection() {
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 grid lg:grid-cols-2 gap-8">
+                <div className={`flex-1 grid lg:grid-cols-2 gap-8 ${
+                  index % 2 === 0 ? '' : 'lg:flex-row-reverse'
+                }`}>
                   {/* Text Content */}
-                  <div className="lg:pr-8">
+                  <div className={`${index % 2 === 0 ? 'lg:pr-8' : 'lg:pl-8 lg:order-2'}`}>
                     <h3 className="hidden lg:block text-2xl font-bold text-gray-900 mb-4">
                       {step.title}
                     </h3>
@@ -276,7 +284,7 @@ export default function HowItWorksSection() {
                   </div>
 
                   {/* Mockup */}
-                  <div>
+                  <div className={`${index % 2 === 0 ? '' : 'lg:order-1'}`}>
                     <div className={`
                       relative p-1 rounded-xl
                       ${step.color === 'green' ? 'bg-gradient-to-br from-green-200 to-green-300' : ''}
