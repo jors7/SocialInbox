@@ -19,7 +19,10 @@
     "clean": "turbo clean && rm -rf node_modules",
     "db:migrate": "cd supabase && supabase migration up",
     "db:types": "supabase gen types typescript --local > packages/shared/src/database.types.ts",
-    "create-admin": "node scripts/create-admin.js"
+    "create-admin": "node scripts/create-admin.js",
+    "deploy:supabase": "./scripts/deploy-supabase.sh",
+    "setup:env": "./scripts/setup-env.sh",
+    "check:config": "./scripts/check-config.sh"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",

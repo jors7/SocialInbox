@@ -18,14 +18,33 @@ A ManyChat-style Instagram DM automation platform built with Next.js, Supabase, 
 - **Queue System**: BullMQ for workflow orchestration
 - **Monitoring**: Sentry, OpenTelemetry
 
+## 🚀 Quick Start
+
+**Get up and running in 3 commands:**
+
+```bash
+# 1. Set up environment variables
+npm run setup:env
+
+# 2. Deploy to Supabase
+npm run deploy:supabase
+
+# 3. Start development
+npm run dev
+```
+
+📖 **Detailed guide:** See [QUICK_START.md](./QUICK_START.md) for step-by-step instructions.
+
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+
 - npm 9+
-- Supabase CLI
+- Supabase account and project
+- Meta Developer account
 - Facebook App with Instagram Messaging permissions
+- Instagram Business account connected to a Facebook Page
 
 ### Installation
 
@@ -40,32 +59,32 @@ cd socialinbox
 npm install
 ```
 
-3. Set up environment variables:
+3. Set up environment variables (automated):
 ```bash
-cp .env.example .env.local
-# Edit .env.local with your values
+npm run setup:env
 ```
 
-4. Initialize Supabase:
+This will prompt you for:
+- Supabase credentials
+- Meta App ID and Secret
+- Generate secure tokens automatically
+
+4. Deploy to Supabase (automated):
 ```bash
-npx supabase init
-npx supabase start
+npm run deploy:supabase
 ```
 
-5. Run database migrations:
-```bash
-npm run db:migrate
-```
+This will:
+- Link to your Supabase project
+- Deploy all Edge Functions
+- Configure secrets
 
-6. Seed the database:
-```bash
-npx supabase db seed
-```
-
-7. Start the development server:
+5. Start the development server:
 ```bash
 npm run dev
 ```
+
+6. Configure webhooks in Meta Dashboard using the URLs from the deployment output
 
 ## Project Structure
 
@@ -84,45 +103,49 @@ npm run dev
 
 ## Development
 
-### Running Tests
-```bash
-npm test
-```
+### Available Scripts
 
-### Type Checking
 ```bash
-npm run typecheck
-```
+npm run dev              # Start development server
+npm run build            # Build for production
+npm run test             # Run tests
+npm run typecheck        # Type checking
+npm run lint             # Run linter
 
-### Linting
-```bash
-npm run lint
-```
+# Database
+npm run db:migrate       # Run database migrations
+npm run db:types         # Generate TypeScript types
 
-### Building for Production
-```bash
-npm run build
+# Deployment
+npm run setup:env        # Set up environment variables
+npm run deploy:supabase  # Deploy Edge Functions
+npm run check:config     # Verify configuration
 ```
 
 ## Setting Up Instagram Integration
 
+See [QUICK_START.md](./QUICK_START.md) for detailed setup instructions.
+
+**Quick overview:**
+
 1. Create a Facebook App at [developers.facebook.com](https://developers.facebook.com)
-2. Add Instagram Messaging product to your app
-3. Configure webhook URL: `https://your-domain.com/api/webhooks/meta`
-4. Subscribe to webhook fields: messages, messaging_postbacks, message_reactions
-5. Generate long-lived access tokens for Instagram accounts
+2. Add Instagram product with Facebook Login
+3. Configure OAuth redirect URIs
+4. Set up webhooks with callback URL from deployment
+5. Add required permissions for Instagram Messaging
 
 ## Deployment
 
-### Vercel (Frontend)
-```bash
-vercel --prod
-```
+See [DEPLOYMENT_GUIDE.md](./DEPLOYMENT_GUIDE.md) for complete deployment instructions.
 
-### Supabase (Backend)
+### Quick Deploy
+
 ```bash
-npx supabase functions deploy
-npx supabase db push
+# Deploy Edge Functions to Supabase
+npm run deploy:supabase
+
+# Deploy frontend to Vercel
+vercel --prod
 ```
 
 ## Contributing
