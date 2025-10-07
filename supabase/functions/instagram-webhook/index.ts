@@ -143,12 +143,14 @@ async function processInstagramMessage(messageData: any, igAccountId: string) {
         .update({
           last_user_ts: new Date().toISOString(),
           status: 'open',
+          window_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // Reset 24h window
         })
         .eq('id', conversation.id);
 
-      // TODO: Add flow execution logic here when flows are implemented
-      // For now, just log that we received the message
       console.log('Message saved successfully:', newMessage.id);
+
+      // Check if there are any active message triggers for this account
+      await checkAndTriggerFlows(igAccount, conversation, newMessage, message.text || '');
     }
   } catch (error) {
     console.error('Error processing Instagram message:', error);
@@ -240,6 +242,74 @@ async function processMessagingEvent(messaging: any, igAccount: any) {
     console.log('Receipt received');
     // Update message status
   }
+}
+
+// Check for message-based triggers and start flows
+async function checkAndTriggerFlows(igAccount: any, conversation: any, message: any, messageText: string) {
+  try {
+    // Check if there are active triggers for "direct_message" type
+    const { data: triggers, error: triggerError } = await supabase
+      .from('triggers')
+      .select('*')
+      .eq('ig_account_id', igAccount.id)
+      .eq('trigger_type', 'direct_message')
+      .eq('is_active', true);
+
+    if (triggerError) {
+      console.error('Error fetching triggers:', triggerError);
+      return;
+    }
+
+    if (!triggers || triggers.length === 0) {
+      console.log('No active message triggers found');
+      return;
+    }
+
+    // Check each trigger's filters
+    for (const trigger of triggers) {
+      if (shouldTriggerFlow(messageText, trigger)) {
+        console.log(`Triggering flow ${trigger.flow_id} for message`);
+
+        // Start the flow
+        await activateFlow(conversation, trigger.flow_id, {
+          trigger_type: 'direct_message',
+          message_text: messageText,
+          message_id: message.id,
+          triggered_at: new Date().toISOString(),
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error checking/triggering flows:', error);
+  }
+}
+
+// Check if message should trigger a flow based on trigger filters
+function shouldTriggerFlow(messageText: string, trigger: any): boolean {
+  const text = messageText.toLowerCase();
+  const filters = trigger.filters || {};
+
+  // Check include keywords
+  if (filters.include_keywords && filters.include_keywords.length > 0) {
+    const hasKeyword = filters.include_keywords.some(
+      (keyword: string) => text.includes(keyword.toLowerCase())
+    );
+    if (!hasKeyword) {
+      return false;
+    }
+  }
+
+  // Check exclude keywords
+  if (filters.exclude_keywords && filters.exclude_keywords.length > 0) {
+    const hasExcluded = filters.exclude_keywords.some(
+      (keyword: string) => text.includes(keyword.toLowerCase())
+    );
+    if (hasExcluded) {
+      return false;
+    }
+  }
+
+  return true;
 }
 
 async function processComment(comment: any, igAccountId: string) {
