@@ -35,19 +35,17 @@ async function processFlowExecutions() {
       flows (
         id,
         name,
-        nodes,
-        edges,
+        spec,
         team_id
       ),
       conversations (
         id,
-        instagram_user_id,
-        instagram_username,
+        contact_id,
         ig_account_id
       )
     `)
-    .eq('status', 'queued')
-    .order('created_at', { ascending: true })
+    .eq('status', 'active')
+    .order('started_at', { ascending: true })
     .limit(10);
 
   if (error || !executions) {
@@ -81,9 +79,11 @@ async function processFlowExecutions() {
       await supabase
         .from('flow_executions')
         .update({
-          status: execution.retry_count < execution.max_retries ? 'queued' : 'failed',
-          error: error.message,
-          retry_count: execution.retry_count + 1,
+          status: 'failed',
+          context: {
+            ...execution.context,
+            error: error.message,
+          },
         })
         .eq('id', execution.id);
 
@@ -100,15 +100,16 @@ async function processFlowExecutions() {
 async function processFlow(execution: any) {
   const flow = execution.flows;
   const conversation = execution.conversations;
-  const nodes = flow.nodes || [];
-  const edges = flow.edges || [];
+  const spec = flow.spec || {};
+  const nodes = Object.values(spec.nodes || {});
+  const edges = spec.edges || [];
 
   // Initialize execution context
   let context = {
     ...execution.context,
     conversation,
     execution_id: execution.id,
-    variables: execution.execution_data.variables || {},
+    variables: execution.context.variables || {},
   };
 
   // Find start node
@@ -147,15 +148,15 @@ async function processFlow(execution: any) {
     // Update context with node results
     context = { ...context, ...nodeResult.context };
 
-    // Update execution data
+    // Update execution context
     await supabase
       .from('flow_executions')
       .update({
-        execution_data: {
-          ...execution.execution_data,
+        context: {
+          ...execution.context,
           variables: context.variables,
           node_results: {
-            ...execution.execution_data.node_results,
+            ...(execution.context.node_results || {}),
             [currentNodeId]: nodeResult,
           },
         },
@@ -201,16 +202,21 @@ async function executeNode(node: any, context: any) {
       // Start node doesn't do anything
       break;
 
+    case 'message':
     case 'sendMessage':
-      // Queue message for sending
-      const messageContent = replaceVariables(nodeData.message || '', context.variables);
+      // Queue message for sending by inserting directly into messages table
+      const messageContent = replaceVariables(nodeData.text || nodeData.message || '', context.variables);
       await supabase
-        .from('message_queue')
+        .from('messages')
         .insert({
           conversation_id: context.conversation.id,
-          flow_execution_id: context.execution_id,
-          content: messageContent,
-          message_type: 'text',
+          direction: 'out',
+          msg_type: 'text',
+          payload: {
+            text: messageContent,
+            flow_execution_id: context.execution_id,
+          },
+          delivery_status: 'queued',
         });
       break;
 
@@ -218,16 +224,19 @@ async function executeNode(node: any, context: any) {
       // Calculate delay time
       const delayMinutes = nodeData.delayMinutes || 1;
       const scheduledAt = new Date(Date.now() + delayMinutes * 60 * 1000);
-      
+
       // Pause execution by updating status
       await supabase
         .from('flow_executions')
         .update({
-          status: 'queued',
-          scheduled_at: scheduledAt.toISOString(),
+          status: 'waiting',
+          context: {
+            ...context,
+            scheduled_for: scheduledAt.toISOString(),
+          },
         })
         .eq('id', context.execution_id);
-      
+
       // Stop execution for now
       throw new Error('DELAY_NODE');
 
@@ -237,16 +246,20 @@ async function executeNode(node: any, context: any) {
       break;
 
     case 'collectInput':
-      // Mark conversation as waiting for input
+      // Pause execution and wait for user input
       await supabase
-        .from('conversations')
+        .from('flow_executions')
         .update({
-          waiting_for_input: true,
-          input_type: nodeData.inputType || 'text',
+          status: 'waiting',
+          context: {
+            ...context,
+            waiting_for_input: true,
+            input_type: nodeData.inputType || 'text',
+          },
         })
-        .eq('id', context.conversation.id);
-      
-      // Pause execution
+        .eq('id', context.execution_id);
+
+      // Stop execution for now
       throw new Error('WAITING_FOR_INPUT');
 
     case 'action':
@@ -255,14 +268,8 @@ async function executeNode(node: any, context: any) {
       break;
 
     case 'end':
-      // End node - deactivate bot for conversation
-      await supabase
-        .from('conversations')
-        .update({
-          is_bot_active: false,
-          active_flow_id: null,
-        })
-        .eq('id', context.conversation.id);
+      // End node - mark execution as completed
+      result.context.flow_ended = true;
       break;
 
     default:
@@ -316,35 +323,41 @@ async function evaluateConditions(edges: any[], context: any): Promise<string | 
 async function executeAction(actionType: string, config: any, context: any): Promise<any> {
   switch (actionType) {
     case 'add_tag':
-      // Add tag to conversation
-      const currentTags = context.conversation.tags || [];
+      // Add tag to contact
+      const { data: contact } = await supabase
+        .from('contacts')
+        .select('tags')
+        .eq('id', context.conversation.contact_id)
+        .single();
+
+      const currentTags = contact?.tags || [];
       await supabase
-        .from('conversations')
+        .from('contacts')
         .update({
           tags: [...currentTags, config.tag],
         })
-        .eq('id', context.conversation.id);
+        .eq('id', context.conversation.contact_id);
       return { tags: [...currentTags, config.tag] };
 
-    case 'assign_agent':
-      // Assign conversation to team member
+    case 'update_status':
+      // Update conversation status
       await supabase
         .from('conversations')
         .update({
-          assigned_to: config.agentId,
+          status: config.status,
         })
         .eq('id', context.conversation.id);
-      return { assigned_to: config.agentId };
+      return { status: config.status };
 
-    case 'update_field':
-      // Update custom field
-      const customFields = context.conversation.custom_fields || {};
-      customFields[config.field] = config.value;
+    case 'pause_automation':
+      // Pause automation for this conversation
       await supabase
         .from('conversations')
-        .update({ custom_fields: customFields })
+        .update({
+          automation_paused: true,
+        })
         .eq('id', context.conversation.id);
-      return { custom_fields: customFields };
+      return { automation_paused: true };
 
     default:
       console.warn(`Unknown action type: ${actionType}`);
@@ -355,22 +368,20 @@ async function executeAction(actionType: string, config: any, context: any): Pro
 // Process message send queue
 async function processMessageQueue() {
   const { data: messages, error } = await supabase
-    .from('message_queue')
+    .from('messages')
     .select(`
       *,
       conversations (
         id,
-        instagram_user_id,
         ig_account_id,
-        ig_accounts (
-          id,
-          instagram_user_id,
-          page_access_token
+        contact_id,
+        contacts (
+          ig_user_id
         )
       )
     `)
-    .eq('status', 'pending')
-    .lte('scheduled_at', new Date().toISOString())
+    .eq('delivery_status', 'queued')
+    .eq('direction', 'out')
     .order('created_at', { ascending: true })
     .limit(10);
 
@@ -386,37 +397,56 @@ async function processMessageQueue() {
 
   for (const message of messages) {
     try {
-      // Queue API call for sending
-      const apiQueueId = await supabase.rpc('queue_api_call', {
-        p_ig_account_id: message.conversations.ig_account_id,
-        p_api_type: 'send_message',
-        p_payload: {
-          message_queue_id: message.id,
-          recipient_id: message.conversations.instagram_user_id,
-          message: {
-            text: message.content,
-          },
+      // Get Instagram account with token
+      const { data: igAccount } = await supabase
+        .from('ig_accounts')
+        .select('*')
+        .eq('id', message.conversations.ig_account_id)
+        .single();
+
+      if (!igAccount) {
+        throw new Error('Instagram account not found');
+      }
+
+      // Decrypt token
+      const { data: decryptedToken } = await supabase.rpc('decrypt_token', {
+        encrypted_token: igAccount.page_access_token,
+      });
+
+      // Send message directly
+      const recipientId = message.conversations.contacts?.ig_user_id;
+      if (!recipientId) {
+        throw new Error('Recipient ID not found');
+      }
+
+      const result = await sendInstagramMessage(decryptedToken, {
+        recipient_id: recipientId,
+        message: {
+          text: message.payload.text,
         },
-        p_priority: 8, // High priority for messages
       });
 
       // Update message status
       await supabase
-        .from('message_queue')
-        .update({ status: 'sending' })
+        .from('messages')
+        .update({
+          delivery_status: 'sent',
+          sent_at: new Date().toISOString(),
+        })
         .eq('id', message.id);
 
-      results.push({ message_id: message.id, success: true, api_queue_id: apiQueueId });
+      results.push({ message_id: message.id, success: true, result });
     } catch (error) {
-      console.error(`Error queuing message ${message.id}:`, error);
-      
+      console.error(`Error sending message ${message.id}:`, error);
+
       await supabase
-        .from('message_queue')
+        .from('messages')
         .update({
-          status: message.retry_count < message.max_retries ? 'pending' : 'failed',
-          error: error.message,
-          retry_count: message.retry_count + 1,
-          scheduled_at: new Date(Date.now() + 60000).toISOString(), // Retry in 1 minute
+          delivery_status: 'failed',
+          payload: {
+            ...message.payload,
+            error: error.message,
+          },
         })
         .eq('id', message.id);
 
@@ -500,16 +530,7 @@ async function processApiQueue() {
         })
         .eq('id', item.payload.message_queue_id);
 
-      // Insert into messages table
-      await supabase
-        .from('messages')
-        .insert({
-          conversation_id: item.payload.conversation_id,
-          content: item.payload.message.text,
-          is_from_user: false,
-          message_type: 'text',
-          flow_execution_id: item.payload.flow_execution_id,
-        });
+      // Note: Messages are already in the messages table from flow execution
     }
 
     return new Response(JSON.stringify({ success: true, result }), {
