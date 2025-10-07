@@ -3,7 +3,7 @@ import { InstagramClient } from '../_shared/instagram.ts';
 import { corsHeaders } from '../_shared/cors.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const SERVICE_KEY = Deno.env.get('SERVICE_ROLE_KEY')!;
 const ENCRYPTION_KEY = Deno.env.get('APP_ENCRYPTION_KEY')!;
 
 interface SendMessageRequest {

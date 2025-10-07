@@ -2,15 +2,15 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
-const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+const SERVICE_ROLE_KEY = Deno.env.get('SERVICE_ROLE_KEY')!;
 const QUEUE_PROCESSOR_URL = `${SUPABASE_URL}/functions/v1/queue-processor`;
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 // This function is called by a cron job every minute
 serve(async (req) => {
   const authHeader = req.headers.get('Authorization');
-  if (authHeader !== `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`) {
+  if (authHeader !== `Bearer ${SERVICE_ROLE_KEY}`) {
     return new Response('Unauthorized', { status: 401 });
   }
 
@@ -27,7 +27,7 @@ serve(async (req) => {
     const flowResponse = await fetch(QUEUE_PROCESSOR_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ type: 'flow_execution' }),
@@ -38,7 +38,7 @@ serve(async (req) => {
     const messageResponse = await fetch(QUEUE_PROCESSOR_URL, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ type: 'message_send' }),
@@ -52,7 +52,7 @@ serve(async (req) => {
         fetch(QUEUE_PROCESSOR_URL, {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+            'Authorization': `Bearer ${SERVICE_ROLE_KEY}`,
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ type: 'api_call' }),
