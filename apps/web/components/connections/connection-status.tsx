@@ -49,19 +49,22 @@ export function ConnectionStatus({ account }: ConnectionStatusProps) {
 
   const tokenExpiresIn = () => {
     if (!account.token_expires_at) return null;
-    
+
     const expiresAt = new Date(account.token_expires_at);
     const now = new Date();
     const daysUntilExpiry = Math.floor((expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    
-    if (daysUntilExpiry < 0) return 'Expired';
-    if (daysUntilExpiry === 0) return 'Expires today';
-    if (daysUntilExpiry === 1) return 'Expires tomorrow';
-    return `Expires in ${daysUntilExpiry} days`;
+
+    if (daysUntilExpiry < 0) return { text: 'Expired', show: true, warning: true };
+    if (daysUntilExpiry === 0) return { text: 'Expires today', show: true, warning: true };
+    if (daysUntilExpiry === 1) return { text: 'Expires tomorrow', show: true, warning: true };
+    if (daysUntilExpiry < 7) return { text: `Expires in ${daysUntilExpiry} days`, show: true, warning: true };
+
+    // Don't show expiry badge if > 7 days (normal 60-day token lifecycle)
+    return { text: `Valid for ${daysUntilExpiry} days`, show: false, warning: false };
   };
 
   const expiryInfo = tokenExpiresIn();
-  const isExpired = expiryInfo === 'Expired';
+  const isExpired = expiryInfo?.text === 'Expired';
 
   return (
     <div className="mt-2 space-y-2">
@@ -87,14 +90,19 @@ export function ConnectionStatus({ account }: ConnectionStatusProps) {
         </Button>
       </div>
       
-      {expiryInfo && (
+      {expiryInfo?.show && (
         <div className="flex items-center space-x-2">
-          <Badge variant={isExpired ? 'destructive' : 'secondary'} className="text-xs">
-            {expiryInfo}
+          <Badge variant={expiryInfo.warning ? 'destructive' : 'secondary'} className="text-xs">
+            {expiryInfo.text}
           </Badge>
-          {isExpired && (
-            <Button size="sm" variant="link" className="h-auto p-0 text-xs">
-              Refresh token
+          {expiryInfo.warning && (
+            <Button
+              size="sm"
+              variant="link"
+              className="h-auto p-0 text-xs"
+              onClick={() => window.location.href = '/dashboard/connections'}
+            >
+              Reconnect
             </Button>
           )}
         </div>

@@ -30,17 +30,24 @@ serve(async (req) => {
   if (method === 'POST') {
     try {
       const body = await req.json();
-      console.log('Webhook received:', JSON.stringify(body, null, 2));
+      console.log('=== WEBHOOK RECEIVED ===');
+      console.log('Full body:', JSON.stringify(body, null, 2));
+      console.log('Entry count:', body.entry?.length || 0);
 
       // Process Instagram webhook events
       // Instagram Messaging events come through the Instagram object subscription
       for (const entry of body.entry || []) {
         const igAccountId = entry.id;
+        console.log('Processing entry for IG account:', igAccountId);
+        console.log('Entry has changes:', !!entry.changes, 'count:', entry.changes?.length || 0);
+        console.log('Entry has messaging:', !!entry.messaging, 'count:', entry.messaging?.length || 0);
 
         // Process changes (Instagram webhook format)
         for (const change of entry.changes || []) {
+          console.log('Change field:', change.field);
           // Handle Instagram messages via Messenger API format
           if (change.field === 'messages') {
+            console.log('Processing messages change');
             const messageData = change.value;
             await processInstagramMessage(messageData, igAccountId);
           }
@@ -56,13 +63,16 @@ serve(async (req) => {
 
         // Also handle direct messaging format (if present)
         for (const messaging of entry.messaging || []) {
+          console.log('Processing messaging event');
           await processDirectMessage(messaging, igAccountId);
         }
       }
 
+      console.log('=== WEBHOOK PROCESSING COMPLETE ===');
       return new Response('OK', { status: 200 });
     } catch (error) {
-      console.error('Error processing webhook:', error);
+      console.error('!!! ERROR PROCESSING WEBHOOK !!!', error);
+      console.error('Error stack:', error.stack);
       return new Response('Internal Server Error', { status: 500 });
     }
   }
@@ -72,17 +82,22 @@ serve(async (req) => {
 
 async function processInstagramMessage(messageData: any, igAccountId: string) {
   try {
+    console.log('processInstagramMessage called with igAccountId:', igAccountId);
+    console.log('messageData:', JSON.stringify(messageData, null, 2));
+
     // Get the Instagram account from database
-    const { data: igAccount } = await supabase
+    const { data: igAccount, error: accountError } = await supabase
       .from('ig_accounts')
       .select('*')
       .eq('instagram_user_id', igAccountId)
       .single();
 
     if (!igAccount) {
-      console.error('Instagram account not found:', igAccountId);
+      console.error('Instagram account not found:', igAccountId, 'error:', accountError);
       return;
     }
+
+    console.log('Found IG account:', igAccount.username);
 
     // Extract message details from Instagram webhook format
     const { from, to, message } = messageData;
