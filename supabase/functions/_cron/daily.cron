@@ -1,0 +1,2 @@
+# Run daily at 3:00 AM UTC
+0 3 * * * daily-cron

@@ -1,0 +1,17 @@
+name: Daily Cron Jobs
+
+on:
+  schedule:
+    # Run daily at 3:00 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  run-daily-tasks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run daily cron job
+        run: |
+          curl -X POST "${{ secrets.SUPABASE_URL }}/functions/v1/daily-cron" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}" \
+            -H "Content-Type: application/json"
