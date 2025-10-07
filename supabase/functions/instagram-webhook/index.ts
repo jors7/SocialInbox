@@ -104,14 +104,15 @@ async function processInstagramMessage(messageData: any, igAccountId: string) {
         .from('messages')
         .insert({
           conversation_id: conversation.id,
-          instagram_message_id: message.mid || messageData.id,
-          content: message.text || '[Media]',
-          is_from_user: true,
-          message_type: message.attachments ? 'media' : 'text',
-          metadata: {
+          direction: 'in',
+          msg_type: message.attachments ? 'media' : 'text',
+          payload: {
+            text: message.text,
             attachments: message.attachments,
+            mid: message.mid || messageData.id,
             timestamp: messageData.timestamp,
           },
+          delivery_status: 'delivered',
         })
         .select()
         .single();
@@ -125,17 +126,14 @@ async function processInstagramMessage(messageData: any, igAccountId: string) {
       await supabase
         .from('conversations')
         .update({
-          last_message_at: new Date().toISOString(),
-          unread_count: conversation.unread_count + 1,
+          last_user_ts: new Date().toISOString(),
           status: 'open',
         })
         .eq('id', conversation.id);
 
-      // Process with bot if active
-      if (conversation.is_bot_active && conversation.active_flow_id) {
-        // Queue message for flow processing
-        await queueFlowExecution(conversation, newMessage);
-      }
+      // TODO: Add flow execution logic here when flows are implemented
+      // For now, just log that we received the message
+      console.log('Message saved successfully:', newMessage.id);
     }
   } catch (error) {
     console.error('Error processing Instagram message:', error);
@@ -178,21 +176,22 @@ async function processMessagingEvent(messaging: any, igAccount: any) {
   // Process different message types
   if (messaging.message) {
     const message = messaging.message;
-    
+
     // Insert message
     const { data: newMessage, error } = await supabase
       .from('messages')
       .insert({
         conversation_id: conversation.id,
-        instagram_message_id: message.mid,
-        content: message.text || '[Media]',
-        is_from_user: true,
-        message_type: message.attachments ? 'media' : 'text',
-        metadata: {
+        direction: 'in',
+        msg_type: message.quick_reply ? 'quick_reply' : (message.attachments ? 'media' : 'text'),
+        payload: {
+          text: message.text,
           attachments: message.attachments,
           quick_reply: message.quick_reply,
           reply_to: message.reply_to,
+          mid: message.mid,
         },
+        delivery_status: 'delivered',
       })
       .select()
       .single();
@@ -206,17 +205,13 @@ async function processMessagingEvent(messaging: any, igAccount: any) {
     await supabase
       .from('conversations')
       .update({
-        last_message_at: new Date().toISOString(),
-        unread_count: conversation.unread_count + 1,
+        last_user_ts: new Date().toISOString(),
         status: 'open',
       })
       .eq('id', conversation.id);
 
-    // Process with bot if active
-    if (conversation.is_bot_active && conversation.active_flow_id) {
-      // Queue message for flow processing
-      await queueFlowExecution(conversation, newMessage);
-    }
+    // TODO: Add flow execution logic here when flows are implemented
+    console.log('Message saved successfully:', newMessage.id);
   }
 
   // Handle postback (button clicks)
@@ -317,25 +312,53 @@ async function processMention(mention: any, igAccountId: string) {
 }
 
 async function getOrCreateConversation(igAccount: any, userId: string, username?: string) {
+  // First, get or create contact
+  let { data: contact } = await supabase
+    .from('contacts')
+    .select('*')
+    .eq('ig_account_id', igAccount.id)
+    .eq('ig_user_id', userId)
+    .single();
+
+  if (!contact) {
+    const { data: newContact, error: contactError } = await supabase
+      .from('contacts')
+      .insert({
+        ig_account_id: igAccount.id,
+        ig_user_id: userId,
+        display_name: username || 'Unknown',
+      })
+      .select()
+      .single();
+
+    if (contactError) {
+      console.error('Error creating contact:', contactError);
+      throw contactError;
+    }
+
+    contact = newContact;
+  }
+
   // Check if conversation exists
   let { data: conversation } = await supabase
     .from('conversations')
     .select('*')
     .eq('ig_account_id', igAccount.id)
-    .eq('instagram_user_id', userId)
+    .eq('contact_id', contact.id)
     .single();
 
   if (!conversation) {
-    // Create new conversation
+    // Create new conversation with unique ig_thread_id
+    const threadId = `${igAccount.instagram_user_id}_${userId}`;
     const { data: newConversation, error } = await supabase
       .from('conversations')
       .insert({
-        team_id: igAccount.team_id,
         ig_account_id: igAccount.id,
-        instagram_user_id: userId,
-        instagram_username: username || 'Unknown',
+        contact_id: contact.id,
+        ig_thread_id: threadId,
         status: 'open',
-        is_bot_active: true,
+        last_user_ts: new Date().toISOString(),
+        window_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
       })
       .select()
       .single();
@@ -390,19 +413,17 @@ function shouldTrigger(comment: any, trigger: any): boolean {
   return true;
 }
 
-async function queueFlowExecution(conversation: any, message: any) {
+async function queueFlowExecution(conversation: any, message: any, flowId: string) {
   // Insert into flow_executions queue
   const { error } = await supabase
     .from('flow_executions')
     .insert({
-      flow_id: conversation.active_flow_id,
+      flow_id: flowId,
       conversation_id: conversation.id,
-      trigger_message_id: message.id,
-      status: 'queued',
+      status: 'active',
       context: {
-        message: message.content,
-        user_id: conversation.instagram_user_id,
-        username: conversation.instagram_username,
+        message_id: message.id,
+        message_text: message.payload?.text,
       },
     });
 
@@ -412,22 +433,13 @@ async function queueFlowExecution(conversation: any, message: any) {
 }
 
 async function activateFlow(conversation: any, flowId: string, context: any) {
-  // Update conversation with active flow
-  await supabase
-    .from('conversations')
-    .update({
-      is_bot_active: true,
-      active_flow_id: flowId,
-    })
-    .eq('id', conversation.id);
-
   // Queue flow execution
   const { error } = await supabase
     .from('flow_executions')
     .insert({
       flow_id: flowId,
       conversation_id: conversation.id,
-      status: 'queued',
+      status: 'active',
       context,
     });
 

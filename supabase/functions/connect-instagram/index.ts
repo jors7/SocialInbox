@@ -109,13 +109,14 @@ Deno.serve(async (req) => {
     const pageAccessToken = pageTokenData.access_token || selectedPage.access_token;
 
     // Encrypt the token
-    const { data: encryptedToken, error: encryptError } = await supabase.rpc('pgp_sym_encrypt', {
-      data: pageAccessToken,
-      psw: ENCRYPTION_KEY,
+    const { data: encryptedToken, error: encryptError } = await supabase.rpc('encrypt_token', {
+      token: pageAccessToken,
+      key: ENCRYPTION_KEY,
     });
 
     if (encryptError) {
-      throw new Error('Failed to encrypt token');
+      console.error('Encryption error:', encryptError);
+      throw new Error(`Failed to encrypt token: ${encryptError.message}`);
     }
 
     // Check if Instagram account already exists
