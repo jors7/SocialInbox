@@ -15,7 +15,19 @@
 - ✅ Conversations are created/updated properly
 - ✅ Contact management working
 
-### 3. Database Updates
+### 3. Queue Processor Fixes
+- ✅ Fixed all schema mismatches
+- ✅ Updated flow spec parsing (nodes/edges inside spec object)
+- ✅ Corrected execution context handling
+- ✅ Message sending uses correct table structure
+- ✅ Deployed updated queue-processor Edge Function
+
+### 4. Automated Queue Processing
+- ✅ Created process-queues Edge Function
+- ✅ Set up GitHub Actions cron (runs every 5 minutes)
+- ✅ Can be manually triggered for testing
+
+### 5. Database Updates
 - ✅ Created migration for `direct_message` trigger type
 - ⚠️  **NEEDS MANUAL ACTION**: Migration SQL ready but needs to be applied
 
@@ -201,11 +213,29 @@ Once Steps 1-3 are complete:
 
 ## 🐛 Known Issues
 
-1. **Queue processor not running automatically** - Needs cron job or worker setup
-2. **Schema mismatches** - Between code and database
+1. ✅ ~~Queue processor not running automatically~~ - **FIXED**: GitHub Actions cron runs every 5 minutes
+2. ✅ ~~Schema mismatches~~ - **FIXED**: All schema mismatches corrected
 3. **No UI for flow creation yet** - Must use SQL for now
 4. **Message sending not tested** - Instagram API integration untested
 5. **No error handling for failed flows** - Will retry but no notifications
+
+## ⚙️ Queue Processing Setup
+
+**Automated Processing:**
+- GitHub Actions workflow runs every 5 minutes
+- Processes both flow executions and message sending
+- Can be manually triggered from Actions tab
+
+**Manual Processing (for testing):**
+```bash
+curl -X POST "https://uznzejmekcgwgtilbzby.supabase.co/functions/v1/process-queues" \
+  -H "Authorization: Bearer sb_secret_6qnQtnPkx2GAng4cnTHC2Q_ZAYnW2Vi"
+```
+
+**For Production:**
+- Consider using pg_cron extension in PostgreSQL
+- Or deploy a dedicated worker service
+- Current 5-minute interval is GitHub Actions limitation
 
 ---
 
