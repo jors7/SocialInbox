@@ -10,7 +10,7 @@ Run this SQL:
 -- Create test flow
 INSERT INTO public.flows (team_id, name, spec, is_active)
 SELECT
-  team_id,
+  t.id as team_id,
   'Test Auto-Reply Flow',
   '{
     "nodes": {
@@ -36,7 +36,7 @@ SELECT
     ]
   }'::jsonb,
   true
-FROM public.teams
+FROM public.teams t
 LIMIT 1
 RETURNING id;
 ```
