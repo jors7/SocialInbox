@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_ROLE_KEY = Deno.env.get('SERVICE_ROLE_KEY')!;
 const META_APP_ID = Deno.env.get('META_APP_ID')!;
+const ENCRYPTION_KEY = Deno.env.get('APP_ENCRYPTION_KEY')!;
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
@@ -409,9 +410,14 @@ async function processMessageQueue() {
       }
 
       // Decrypt token
-      const { data: decryptedToken } = await supabase.rpc('decrypt_token', {
-        encrypted_token: igAccount.page_access_token,
+      const { data: decryptedToken, error: decryptError } = await supabase.rpc('decrypt_token', {
+        encrypted_token: igAccount.access_token_enc,
+        key: ENCRYPTION_KEY,
       });
+
+      if (decryptError || !decryptedToken) {
+        throw new Error(`Failed to decrypt token: ${decryptError?.message || 'Unknown error'}`);
+      }
 
       // Send message directly
       const recipientId = message.conversations.contacts?.ig_user_id;

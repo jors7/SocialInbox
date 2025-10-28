@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
 
     // Decrypt access token
     const { data: tokenData, error: tokenError } = await supabase.rpc('decrypt_token', {
-      token_enc: igAccount.access_token_enc,
+      encrypted_token: igAccount.access_token_enc,
       key: ENCRYPTION_KEY,
     });
 

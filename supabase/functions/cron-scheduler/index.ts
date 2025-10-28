@@ -9,11 +9,6 @@ const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
 // This function is called by a cron job every minute
 serve(async (req) => {
-  const authHeader = req.headers.get('Authorization');
-  if (authHeader !== `Bearer ${SERVICE_ROLE_KEY}`) {
-    return new Response('Unauthorized', { status: 401 });
-  }
-
   console.log('Starting queue processing cycle...');
   const results = {
     flow_executions: null,

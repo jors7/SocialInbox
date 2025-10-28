@@ -256,8 +256,10 @@ async function processMessagingEvent(messaging: any, igAccount: any) {
       })
       .eq('id', conversation.id);
 
-    // TODO: Add flow execution logic here when flows are implemented
     console.log('Message saved successfully:', newMessage.id);
+
+    // Check if there are any active message triggers for this account
+    await checkAndTriggerFlows(igAccount, conversation, newMessage, message.text || '');
   }
 
   // Handle postback (button clicks)
@@ -276,6 +278,12 @@ async function processMessagingEvent(messaging: any, igAccount: any) {
 // Check for message-based triggers and start flows
 async function checkAndTriggerFlows(igAccount: any, conversation: any, message: any, messageText: string) {
   try {
+    console.log('[TRIGGER CHECK] Starting trigger check for:', {
+      igAccountId: igAccount.id,
+      messageText,
+      messageId: message.id,
+    });
+
     // Check if there are active triggers for "direct_message" type
     const { data: triggers, error: triggerError } = await supabase
       .from('triggers')
@@ -284,20 +292,32 @@ async function checkAndTriggerFlows(igAccount: any, conversation: any, message: 
       .eq('trigger_type', 'direct_message')
       .eq('is_active', true);
 
+    console.log('[TRIGGER CHECK] Query result:', {
+      triggersFound: triggers?.length || 0,
+      error: triggerError,
+      triggers: triggers,
+    });
+
     if (triggerError) {
       console.error('Error fetching triggers:', triggerError);
       return;
     }
 
     if (!triggers || triggers.length === 0) {
-      console.log('No active message triggers found');
+      console.log('[TRIGGER CHECK] No active message triggers found for ig_account_id:', igAccount.id);
       return;
     }
 
     // Check each trigger's filters
     for (const trigger of triggers) {
+      console.log('[TRIGGER CHECK] Evaluating trigger:', {
+        triggerId: trigger.id,
+        flowId: trigger.flow_id,
+        filters: trigger.filters,
+      });
+
       if (shouldTriggerFlow(messageText, trigger)) {
-        console.log(`Triggering flow ${trigger.flow_id} for message`);
+        console.log(`[TRIGGER CHECK] ✅ Triggering flow ${trigger.flow_id} for message "${messageText}"`);
 
         // Start the flow
         await activateFlow(conversation, trigger.flow_id, {
@@ -306,6 +326,8 @@ async function checkAndTriggerFlows(igAccount: any, conversation: any, message: 
           message_id: message.id,
           triggered_at: new Date().toISOString(),
         });
+      } else {
+        console.log(`[TRIGGER CHECK] ❌ Trigger ${trigger.id} did not match`);
       }
     }
   } catch (error) {

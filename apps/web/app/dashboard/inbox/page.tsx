@@ -98,19 +98,25 @@ export default function InboxPage() {
       .from('conversations')
       .select(`
         *,
-        ig_accounts (
+        ig_accounts!inner (
           id,
-          username
+          username,
+          team_id
+        ),
+        contacts (
+          id,
+          ig_user_id,
+          display_name
         ),
         messages (
           id,
-          content,
-          is_from_user,
+          payload,
+          direction,
           created_at
         )
       `)
-      .eq('team_id', teamId)
-      .order('last_message_at', { ascending: false });
+      .eq('ig_accounts.team_id', teamId)
+      .order('last_user_ts', { ascending: false, nullsFirst: false });
 
     // Apply filters
     if (filterAccount !== 'all') {
@@ -123,13 +129,14 @@ export default function InboxPage() {
       } else if (filterStatus === 'closed') {
         query.eq('status', 'closed');
       } else if (filterStatus === 'bot') {
-        query.eq('is_bot_active', true);
+        query.eq('automation_paused', false);
       }
     }
 
-    if (searchQuery) {
-      query.or(`instagram_user_id.ilike.%${searchQuery}%,instagram_username.ilike.%${searchQuery}%`);
-    }
+    // Search is not implemented yet - would need to search through contacts table
+    // if (searchQuery) {
+    //   // This would require a more complex query joining with contacts
+    // }
 
     const { data, error } = await query;
 
