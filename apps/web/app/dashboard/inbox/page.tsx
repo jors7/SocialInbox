@@ -20,11 +20,17 @@ type Conversation = Database['public']['Tables']['conversations']['Row'] & {
   ig_accounts?: {
     id: string;
     username: string;
+    team_id: string;
+  };
+  contacts?: {
+    id: string;
+    ig_user_id: string;
+    display_name: string;
   };
   messages?: Array<{
     id: string;
-    content: string;
-    is_from_user: boolean;
+    payload: any;
+    direction: string;
     created_at: string;
   }>;
 };

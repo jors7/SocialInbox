@@ -8,11 +8,17 @@ type Conversation = Database['public']['Tables']['conversations']['Row'] & {
   ig_accounts?: {
     id: string;
     username: string;
+    team_id: string;
+  };
+  contacts?: {
+    id: string;
+    ig_user_id: string;
+    display_name: string;
   };
   last_message?: {
     id: string;
-    content: string;
-    is_from_user: boolean;
+    payload: any;
+    direction: string;
     created_at: string;
   } | null;
 };
@@ -54,24 +60,24 @@ export function ConversationList({
           >
             <div className="flex items-start gap-3">
               <Avatar className="flex-shrink-0">
-                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${conversation.instagram_username}`} />
-                <AvatarFallback>{conversation.instagram_username?.[0]?.toUpperCase()}</AvatarFallback>
+                <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${conversation.contacts?.ig_user_id || 'user'}`} />
+                <AvatarFallback>{conversation.contacts?.display_name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
               </Avatar>
-              
+
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between mb-1">
                   <h3 className={`text-sm font-medium truncate ${hasUnread ? 'text-gray-900' : 'text-gray-600'}`}>
-                    {conversation.instagram_username}
+                    {conversation.contacts?.display_name || 'Unknown'}
                   </h3>
                   <span className="text-xs text-gray-500">
                     {conversation.last_message?.created_at ? formatDistanceToNow(new Date(conversation.last_message.created_at), { addSuffix: true }) : 'No messages'}
                   </span>
                 </div>
-                
+
                 {conversation.last_message && (
                   <p className={`text-sm truncate ${hasUnread ? 'text-gray-900 font-medium' : 'text-gray-500'}`}>
-                    {conversation.last_message.is_from_user ? '' : 'You: '}
-                    {conversation.last_message.content}
+                    {conversation.last_message.direction === 'in' ? '' : 'You: '}
+                    {conversation.last_message.payload?.text || '[Media]'}
                   </p>
                 )}
                 
