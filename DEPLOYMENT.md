@@ -277,3 +277,87 @@ npm run test:db
 - [ ] SSL certificates active
 - [ ] Monitoring enabled
 - [ ] Backups configured
+## 🔐 Edge Functions JWT Verification
+
+### Functions That Require JWT Verification OFF
+
+Some Edge Functions need to accept requests from external services (like Meta/Instagram webhooks) that don't have Supabase JWT tokens. These functions must be deployed with the `--no-verify-jwt` flag.
+
+**Functions without JWT verification:**
+- `instagram-webhook` - Receives webhooks from Instagram/Meta
+- `cron-scheduler` - Called by external cron service (cron-job.org)
+
+### Quick Deploy Script
+
+Use the provided script to deploy all webhook functions with correct settings:
+
+```bash
+./deploy-webhooks.sh
+```
+
+This script will:
+1. Deploy `instagram-webhook` without JWT verification
+2. Deploy `cron-scheduler` without JWT verification
+
+### Manual Deployment
+
+If you need to deploy individually:
+
+```bash
+# Set access token
+export SUPABASE_ACCESS_TOKEN=your_access_token_here
+
+# Deploy webhook without JWT verification
+supabase functions deploy instagram-webhook --no-verify-jwt
+
+# Deploy cron scheduler without JWT verification
+supabase functions deploy cron-scheduler --no-verify-jwt
+```
+
+### Other Edge Functions
+
+These functions use JWT verification (default) and can be deployed normally:
+
+```bash
+# These require authentication
+supabase functions deploy queue-processor
+supabase functions deploy update-contact-names
+supabase functions deploy aggregate-analytics
+```
+
+## ⚠️ Why JWT Verification Keeps Turning Back On
+
+The JWT verification setting is stored in Supabase's infrastructure, not in your code. If you deploy a function without explicitly using the `--no-verify-jwt` flag, it will default to requiring JWT verification.
+
+**Always use the deployment script** (`./deploy-webhooks.sh`) to ensure webhook functions are deployed with the correct settings.
+
+## 🧪 Testing Webhook Functions
+
+After deployment, test that JWT verification is disabled:
+
+```bash
+# Should return webhook verification response, not 401
+curl "https://uznzejmekcgwgtilbzby.supabase.co/functions/v1/instagram-webhook?hub.mode=subscribe&hub.verify_token=YOUR_TOKEN&hub.challenge=test"
+```
+
+If you get a 401 error, the JWT verification is still enabled. Re-run the deployment script.
+
+## 🔧 Webhook Troubleshooting
+
+### Problem: Webhook returns 401 Unauthorized
+
+**Solution:** The function was deployed with JWT verification enabled. Run:
+```bash
+./deploy-webhooks.sh
+```
+
+### Problem: Can't find SUPABASE_ACCESS_TOKEN
+
+**Solution:** Get your access token from Supabase Dashboard > Settings > API > Access Tokens. Update the token in `deploy-webhooks.sh`.
+
+### Problem: Script permission denied
+
+**Solution:** Make the script executable:
+```bash
+chmod +x deploy-webhooks.sh
+```

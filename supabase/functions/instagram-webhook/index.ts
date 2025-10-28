@@ -1,3 +1,6 @@
+// @ts-ignore: Deno deploy
+/// <reference types="https://esm.sh/@supabase/functions-js/src/edge-runtime.d.ts" />
+
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
 
@@ -223,7 +226,7 @@ async function processDirectMessage(messaging: any, igAccountId: string) {
 async function processMessagingEvent(messaging: any, igAccount: any) {
   const senderId = messaging.sender.id;
   const recipientId = messaging.recipient.id;
-  
+
   // Skip if message is from the business account
   if (senderId === igAccount.instagram_user_id) {
     return;
@@ -400,7 +403,7 @@ async function processComment(comment: any, igAccountId: string) {
     console.error('Instagram account not found:', igAccountId);
     return;
   }
-  
+
   // Check if we have triggers for comments
   const { data: triggers } = await supabase
     .from('triggers')
@@ -427,7 +430,7 @@ async function processComment(comment: any, igAccountId: string) {
       // Start DM flow
       const senderId = comment.from.id;
       const conversation = await getOrCreateConversation(igAccount, senderId, comment.from.username);
-      
+
       // Activate flow
       if (trigger.flow_id) {
         await activateFlow(conversation, trigger.flow_id, {
@@ -464,7 +467,7 @@ async function processMention(mention: any, igAccountId: string) {
     console.error('Instagram account not found:', igAccountId);
     return;
   }
-  
+
   // Similar to comment processing but for mentions
   const { data: triggers } = await supabase
     .from('triggers')
@@ -558,7 +561,7 @@ async function getOrCreateConversation(igAccount: any, userId: string, username?
 
 function shouldTrigger(comment: any, trigger: any): boolean {
   const text = comment.text?.toLowerCase() || '';
-  
+
   // Check post scope
   if (trigger.post_scope) {
     if (trigger.post_scope.mode === 'specific' && trigger.post_scope.postIds) {
