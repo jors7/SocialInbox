@@ -4,7 +4,7 @@ import { getUserTeam } from '../../../lib/utils/team';
 import { Button } from '@socialinbox/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@socialinbox/ui';
 import { Badge } from '@socialinbox/ui';
-import { Plus, MessageSquare, Instagram, AtSign, Play, Pause, Edit } from 'lucide-react';
+import { Plus, MessageSquare, Instagram, AtSign, PlayCircle, PauseCircle, Edit } from 'lucide-react';
 
 async function getTriggers(supabase: any, teamId: string) {
   const { data: triggers } = await supabase
@@ -174,9 +174,9 @@ export default async function TriggersPage() {
                     </div>
                     <Badge variant={trigger.is_active ? 'default' : 'secondary'}>
                       {trigger.is_active ? (
-                        <><Play className="mr-1 h-3 w-3" /> Active</>
+                        <><PlayCircle className="mr-1 h-3 w-3" /> Active</>
                       ) : (
-                        <><Pause className="mr-1 h-3 w-3" /> Paused</>
+                        <><PauseCircle className="mr-1 h-3 w-3" /> Paused</>
                       )}
                     </Badge>
                   </div>
