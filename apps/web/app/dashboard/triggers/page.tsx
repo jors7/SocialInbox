@@ -50,12 +50,14 @@ const triggerTypeIcons = {
   comment: MessageSquare,
   story_reply: Instagram,
   mention: AtSign,
+  direct_message: MessageSquare,
 };
 
 const triggerTypeLabels = {
   comment: 'Comment Trigger',
   story_reply: 'Story Reply',
   mention: 'Mention Trigger',
+  direct_message: 'Direct Message',
 };
 
 export default async function TriggersPage() {
