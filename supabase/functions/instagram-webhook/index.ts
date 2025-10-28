@@ -34,6 +34,12 @@ serve(async (req) => {
       console.log('Full body:', JSON.stringify(body, null, 2));
       console.log('Entry count:', body.entry?.length || 0);
 
+      // Save raw webhook to events_inbox for debugging
+      await supabase.from('events_inbox').insert({
+        payload: body,
+        processed: false,
+      });
+
       // Process Instagram webhook events
       // Instagram Messaging events come through the Instagram object subscription
       for (const entry of body.entry || []) {
@@ -86,14 +92,27 @@ async function processInstagramMessage(messageData: any, igAccountId: string) {
     console.log('messageData:', JSON.stringify(messageData, null, 2));
 
     // Get the Instagram account from database
-    const { data: igAccount, error: accountError } = await supabase
+    // Try both instagram_user_id and page_id since Meta can send either
+    let { data: igAccount, error: accountError } = await supabase
       .from('ig_accounts')
       .select('*')
       .eq('instagram_user_id', igAccountId)
-      .single();
+      .maybeSingle();
+
+    // If not found by instagram_user_id, try page_id
+    if (!igAccount) {
+      const { data: accountByPageId } = await supabase
+        .from('ig_accounts')
+        .select('*')
+        .eq('page_id', igAccountId)
+        .maybeSingle();
+
+      igAccount = accountByPageId;
+    }
 
     if (!igAccount) {
-      console.error('Instagram account not found:', igAccountId, 'error:', accountError);
+      console.error('Instagram account not found for ID:', igAccountId, 'error:', accountError);
+      console.error('Tried both instagram_user_id and page_id');
       return;
     }
 
@@ -161,11 +180,21 @@ async function processDirectMessage(messaging: any, igAccountId: string) {
   // This handles the Messenger-style format if it comes through
   try {
     // Get the Instagram account from database
-    const { data: igAccount } = await supabase
+    let { data: igAccount } = await supabase
       .from('ig_accounts')
       .select('*')
       .eq('instagram_user_id', igAccountId)
-      .single();
+      .maybeSingle();
+
+    if (!igAccount) {
+      const { data: accountByPageId } = await supabase
+        .from('ig_accounts')
+        .select('*')
+        .eq('page_id', igAccountId)
+        .maybeSingle();
+
+      igAccount = accountByPageId;
+    }
 
     if (!igAccount) {
       console.error('Instagram account not found:', igAccountId);
@@ -316,11 +345,21 @@ async function processComment(comment: any, igAccountId: string) {
   console.log('Processing comment:', comment);
 
   // Get the Instagram account from database
-  const { data: igAccount } = await supabase
+  let { data: igAccount } = await supabase
     .from('ig_accounts')
     .select('*')
     .eq('instagram_user_id', igAccountId)
-    .single();
+    .maybeSingle();
+
+  if (!igAccount) {
+    const { data: accountByPageId } = await supabase
+      .from('ig_accounts')
+      .select('*')
+      .eq('page_id', igAccountId)
+      .maybeSingle();
+
+    igAccount = accountByPageId;
+  }
 
   if (!igAccount) {
     console.error('Instagram account not found:', igAccountId);
@@ -370,11 +409,21 @@ async function processMention(mention: any, igAccountId: string) {
   console.log('Processing mention:', mention);
 
   // Get the Instagram account from database
-  const { data: igAccount } = await supabase
+  let { data: igAccount } = await supabase
     .from('ig_accounts')
     .select('*')
     .eq('instagram_user_id', igAccountId)
-    .single();
+    .maybeSingle();
+
+  if (!igAccount) {
+    const { data: accountByPageId } = await supabase
+      .from('ig_accounts')
+      .select('*')
+      .eq('page_id', igAccountId)
+      .maybeSingle();
+
+    igAccount = accountByPageId;
+  }
 
   if (!igAccount) {
     console.error('Instagram account not found:', igAccountId);
