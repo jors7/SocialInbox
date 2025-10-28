@@ -37,7 +37,6 @@ export function RealtimeMetrics({ teamId, accountId }: RealtimeMetricsProps) {
           event: '*',
           schema: 'public',
           table: 'conversations',
-          filter: `team_id=eq.${teamId}`,
         },
         () => {
           loadRealtimeMetrics();
@@ -49,6 +48,17 @@ export function RealtimeMetrics({ teamId, accountId }: RealtimeMetricsProps) {
           event: 'INSERT',
           schema: 'public',
           table: 'messages',
+        },
+        () => {
+          loadRealtimeMetrics();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'flow_executions',
         },
         () => {
           loadRealtimeMetrics();
@@ -71,12 +81,13 @@ export function RealtimeMetrics({ teamId, accountId }: RealtimeMetricsProps) {
       const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
 
       // Active conversations (open + had activity in last hour)
+      // Need to join through ig_accounts to filter by team_id
       const conversationsQuery = supabase
         .from('conversations')
-        .select('id', { count: 'exact', head: true })
-        .eq('team_id', teamId)
+        .select('id, ig_accounts!inner(team_id)', { count: 'exact', head: true })
+        .eq('ig_accounts.team_id', teamId)
         .eq('status', 'open')
-        .gt('last_message_at', oneHourAgo);
+        .gt('last_user_ts', oneHourAgo);
 
       if (accountId !== 'all') {
         conversationsQuery.eq('ig_account_id', accountId);
@@ -87,41 +98,68 @@ export function RealtimeMetrics({ teamId, accountId }: RealtimeMetricsProps) {
       // Online users (active in last 5 minutes)
       const onlineQuery = supabase
         .from('conversations')
-        .select('instagram_user_id')
-        .eq('team_id', teamId)
-        .gt('last_message_at', fiveMinutesAgo);
+        .select('contact_id, ig_accounts!inner(team_id)')
+        .eq('ig_accounts.team_id', teamId)
+        .gt('last_user_ts', fiveMinutesAgo);
 
       if (accountId !== 'all') {
         onlineQuery.eq('ig_account_id', accountId);
       }
 
       const { data: onlineData } = await onlineQuery;
-      const onlineUsers = new Set(onlineData?.map(c => c.instagram_user_id)).size;
+      const onlineUsers = new Set(onlineData?.map(c => c.contact_id)).size;
 
-      // Messages in last hour
-      const messagesQuery = supabase
-        .from('messages')
-        .select('id', { count: 'exact', head: true })
-        .gt('created_at', oneHourAgo);
-
+      // Messages in last hour - need to join through conversations to filter by account/team
+      let messagesCount = 0;
       if (accountId !== 'all') {
-        // TODO: Filter by account
-        // For now, we'll show all data for the team
+        const { count } = await supabase
+          .from('messages')
+          .select('id, conversations!inner(ig_account_id)', { count: 'exact', head: true })
+          .eq('conversations.ig_account_id', accountId)
+          .gt('created_at', oneHourAgo);
+        messagesCount = count || 0;
+      } else {
+        // Get all conversations for this team first
+        const { data: teamConvos } = await supabase
+          .from('conversations')
+          .select('id, ig_accounts!inner(team_id)')
+          .eq('ig_accounts.team_id', teamId);
+
+        const convoIds = teamConvos?.map(c => c.id) || [];
+
+        if (convoIds.length > 0) {
+          const { count } = await supabase
+            .from('messages')
+            .select('id', { count: 'exact', head: true })
+            .in('conversation_id', convoIds)
+            .gt('created_at', oneHourAgo);
+          messagesCount = count || 0;
+        }
       }
 
-      const { count: messagesLastHour } = await messagesQuery;
+      // Active flows - need to filter by team's conversations
+      const { data: teamConvos } = await supabase
+        .from('conversations')
+        .select('id, ig_accounts!inner(team_id)')
+        .eq('ig_accounts.team_id', teamId);
 
-      // Active flows
-      const { count: activeFlows } = await supabase
-        .from('flow_executions')
-        .select('id', { count: 'exact', head: true })
-        .in('status', ['queued', 'processing']);
+      const convoIds = teamConvos?.map(c => c.id) || [];
+
+      let activeFlowsCount = 0;
+      if (convoIds.length > 0) {
+        const { count } = await supabase
+          .from('flow_executions')
+          .select('id', { count: 'exact', head: true })
+          .in('status', ['active', 'waiting'])
+          .in('conversation_id', convoIds);
+        activeFlowsCount = count || 0;
+      }
 
       setMetrics({
         activeConversations: activeConversations || 0,
         onlineUsers,
-        messagesLastHour: messagesLastHour || 0,
-        activeFlows: activeFlows || 0,
+        messagesLastHour: messagesCount,
+        activeFlows: activeFlowsCount,
       });
     } catch (error) {
       console.error('Failed to load realtime metrics:', error);

@@ -8,6 +8,19 @@ const META_GRAPH_API_VERSION = Deno.env.get('META_GRAPH_API_VERSION') || 'v20.0'
 
 const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+// Fetch Instagram user profile from Graph API
+async function fetchInstagramUserProfile(userId: string, accessToken: string) {
+  const url = `https://graph.facebook.com/${META_GRAPH_API_VERSION}/${userId}?fields=name,username&access_token=${accessToken}`;
+
+  const response = await fetch(url);
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user profile: ${response.status} ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
 serve(async (req) => {
   const method = req.method;
   const url = new URL(req.url);
@@ -477,12 +490,25 @@ async function getOrCreateConversation(igAccount: any, userId: string, username?
     .single();
 
   if (!contact) {
+    // Fetch user profile from Instagram API if no username provided
+    let displayName = username || 'Unknown';
+
+    if (!username) {
+      try {
+        const userProfile = await fetchInstagramUserProfile(userId, igAccount.access_token);
+        displayName = userProfile.name || userProfile.username || userId;
+        console.log('Fetched user profile:', { userId, displayName });
+      } catch (error) {
+        console.error('Failed to fetch user profile, using fallback:', error);
+      }
+    }
+
     const { data: newContact, error: contactError } = await supabase
       .from('contacts')
       .insert({
         ig_account_id: igAccount.id,
         ig_user_id: userId,
-        display_name: username || 'Unknown',
+        display_name: displayName,
       })
       .select()
       .single();
