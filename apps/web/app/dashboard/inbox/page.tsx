@@ -243,9 +243,10 @@ export default function InboxPage() {
         .from('messages')
         .insert({
           conversation_id: selectedConversation.id,
-          content: content.trim(),
-          is_from_user: false,
-          message_type: 'text',
+          direction: 'out',
+          msg_type: 'text',
+          payload: { text: content.trim() },
+          delivery_status: 'queued',
         });
 
       if (error) {
@@ -285,7 +286,7 @@ export default function InboxPage() {
     try {
       const { error } = await supabase
         .from('conversations')
-        .update({ is_bot_active: isActive })
+        .update({ automation_paused: !isActive })
         .eq('id', conversationId);
 
       if (error) {
@@ -375,11 +376,11 @@ export default function InboxPage() {
             <div className="p-4 border-b bg-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar>
-                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedConversation.instagram_username}`} />
-                  <AvatarFallback>{selectedConversation.instagram_username?.[0]?.toUpperCase()}</AvatarFallback>
+                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedConversation.contacts?.ig_user_id || 'user'}`} />
+                  <AvatarFallback>{selectedConversation.contacts?.display_name?.[0]?.toUpperCase() || 'U'}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <h2 className="font-semibold">{selectedConversation.instagram_username}</h2>
+                  <h2 className="font-semibold">{selectedConversation.contacts?.display_name || 'Unknown'}</h2>
                   <p className="text-sm text-gray-500">@{selectedConversation.ig_accounts?.username}</p>
                 </div>
               </div>
